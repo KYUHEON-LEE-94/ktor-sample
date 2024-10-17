@@ -2,11 +2,15 @@ package com.study
 
 import com.study.model.Priority
 import com.study.model.Task
+import com.study.plugins.configureRouting
+import com.study.plugins.configureSerialization
+import com.study.repo.FakeTaskRepository
 import io.ktor.client.call.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
+import io.ktor.server.config.*
 import io.ktor.server.testing.*
 import kotlin.test.Test
 import kotlin.test.assertContains
@@ -16,10 +20,15 @@ import kotlin.test.assertEquals
 class ApplicationTest {
     @Test
     fun tasksCanBeFoundByPriority() = testApplication {
-        application {
-            module()
+        environment {
+            config = MapApplicationConfig()
         }
+        application {
+            val repository = FakeTaskRepository()
 
+            configureSerialization(repository)
+            configureRouting()
+        }
         val client = createClient {
             install(ContentNegotiation) {
                 json()
@@ -38,54 +47,69 @@ class ApplicationTest {
 
     @Test
     fun invalidPriorityProduces400() = testApplication {
-        application {
-            module()
+        environment {
+            config = MapApplicationConfig()
         }
+        application {
+            val repository = FakeTaskRepository()
 
+            configureSerialization(repository)
+            configureRouting()
+        }
         val response = client.get("/tasks/byPriority/Invalid")
         assertEquals(HttpStatusCode.BadRequest, response.status)
     }
 
     @Test
     fun unusedPriorityProduces404() = testApplication {
-        application {
-            module()
+        environment {
+            config = MapApplicationConfig()
         }
-        val response = client.get("/tasks/404/Invalid")
+        application {
+            val repository = FakeTaskRepository()
+            configureSerialization(repository)
+            configureRouting()
+        }
+        val response = client.get("/tasks/byPriority/Vital")
         assertEquals(HttpStatusCode.NotFound, response.status)
     }
 
     @Test
     fun newTasksCanBeAdded() = testApplication {
+        environment {
+            config = MapApplicationConfig()
+        }
         application {
-            module()
+            val repository = FakeTaskRepository()
+
+            configureSerialization(repository)
+            configureRouting()
         }
 
-            val client = createClient {
-                install(ContentNegotiation) {
-                    json()
-                }
+        val client = createClient {
+            install(ContentNegotiation) {
+                json()
             }
+        }
 
+        val task = Task("swimming", "Go to the beach", Priority.Low)
+        val response1 = client.post("/tasks") {
+            header(
+                HttpHeaders.ContentType,
+                ContentType.Application.Json
+            )
 
-            val task = Task("swimming", "Go to the beach", Priority.Low)
-            val response1 = client.post("/tasks") {
-                header(
-                    HttpHeaders.ContentType,
-                    ContentType.Application.Json
-                )
+            setBody(task)
+        }
+        assertEquals(HttpStatusCode.NoContent, response1.status)
 
-                setBody(task)
-            }
-            assertEquals(HttpStatusCode.NoContent, response1.status)
+        val response2 = client.get("/tasks")
+        assertEquals(HttpStatusCode.OK, response2.status)
 
-            val response2 = client.get("/tasks")
-            assertEquals(HttpStatusCode.OK, response2.status)
+        val taskNames = response2
+            .body<List<Task>>()
+            .map { it.name }
 
-            val taskNames = response2
-                .body<List<Task>>()
-                .map { it.name }
-
-            assertContains(taskNames, "swimming")
+        assertContains(taskNames, "swimming")
     }
 }

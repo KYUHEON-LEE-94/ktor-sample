@@ -16,7 +16,7 @@
         function displayTask(name) {
             fetchTaskWithName(name).then(t =>
                 taskDisplay().innerHTML
-                    = `${t.priority} priority task ${t.name} with description "${t.description}"`
+                    = `${t.priority} priority task ${t.name} with description <span style="color:crimson;" >"${t.description}"</span>`
             )
         }
 
@@ -164,15 +164,14 @@
     <span>View all the tasks</span>
     <input type="submit" value="Go">
 </form>
-<form name="priorityForm" action="javascript:displayTasksWithPriority()">
+<form name="priorityForm" action="javascript:void(0);">
     <span>View tasks with priority</span>
-    <select name="priority">
-        <option name="Low">Low</option>
-        <option name="Medium">Medium</option>
-        <option name="High">High</option>
-        <option name="Vital">Vital</option>
+    <select name="priority" onchange="displayTasksWithPriority()">
+        <option value="Low">Low</option>
+        <option value="Medium">Medium</option>
+        <option value="High">High</option>
+        <option value="Vital">Vital</option>
     </select>
-    <input type="submit" value="Go">
 </form>
 <form name="addTaskForm" action="javascript:addNewTask()">
     <span>Create new task with</span>

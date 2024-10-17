@@ -26,12 +26,18 @@ import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransacti
  *
  * <pre>
  */
+/*
+*  task라는 데이터베이스 테이블을 정의하는 역할
+* */
 object TaskTable: IntIdTable("task") {
     val name = varchar("name", 255)
     val description = varchar("description", 255)
     val priority = varchar("priority", 50)
 }
 
+/*
+* 데이터베이스에 저장된 Task 엔티티를 나타내는 객체
+* */
 class TaskDAO(id: EntityID<Int>) : IntEntity(id) {
     //Exposed에서 TaskDAO를 관리하는 역할을 하는 클래스
     companion object : IntEntityClass<TaskDAO>(TaskTable)
