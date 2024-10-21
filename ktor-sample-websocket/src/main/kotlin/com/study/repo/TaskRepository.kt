@@ -1,7 +1,8 @@
 package com.study.repo
 
-import com.study.model.Priority
-import com.study.model.Task
+import com.study.model.*
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.deleteWhere
 
 /**
  * @Description : TaskRepository.java
@@ -20,31 +21,37 @@ import com.study.model.Task
  * <pre>
  */
 object TaskRepository {
-    private val tasks = mutableListOf(
-        Task("cleaning", "Clean the house", Priority.Low),
-        Task("gardening", "Mow the lawn", Priority.Medium),
-        Task("shopping", "Buy the groceries", Priority.High),
-        Task("painting", "Paint the fence", Priority.Medium)
-    )
-
-    fun allTasks(): List<Task> = tasks
-
-    fun tasksByPriority(priority: Priority) = tasks.filter {
-        it.priority == priority
+    suspend fun allTasks(): List<Task> = suspendTransaction {
+        TaskDAO.all().map(::daoToModel)
     }
 
-    fun taskByName(name: String) = tasks.find {
-        it.name.equals(name, ignoreCase = true)
+    suspend fun tasksByPriority(priority: Priority): List<Task> = suspendTransaction {
+        TaskDAO
+            .find { TaskTable.priority eq priority.toString() }
+            .map(::daoToModel)
     }
 
-    fun addTask(task: Task) {
-        if (taskByName(task.name) != null) {
-            throw IllegalStateException("Cannot duplicate task names!")
+    suspend fun taskByName(name: String): Task? = suspendTransaction {
+        TaskDAO
+            .find { TaskTable.name eq name }
+            .limit(1)
+            .map(::daoToModel)
+            .firstOrNull()
+    }
+
+    suspend fun addTask(task: Task): Unit = suspendTransaction {
+        TaskDAO.new {
+            name = task.name
+            description = task.description
+            priority = task.priority.toString()
         }
-        tasks.add(task)
     }
 
-    fun removeTask(name: String): Boolean {
-        return tasks.removeIf { it.name == name }
+    suspend fun removeTask(name: String): Boolean = suspendTransaction {
+        if(name.isEmpty()) false
+        val rowsDeleted = TaskTable.deleteWhere {
+            TaskTable.name eq name
+        }
+        rowsDeleted == 1
     }
 }
