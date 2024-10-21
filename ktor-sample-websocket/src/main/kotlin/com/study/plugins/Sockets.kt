@@ -3,8 +3,10 @@ package com.study.plugins
 import com.study.model.Priority
 import com.study.model.Task
 import com.study.repo.TaskRepository
+import io.ktor.http.*
 import io.ktor.serialization.kotlinx.*
 import io.ktor.server.application.*
+import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
 import io.ktor.websocket.*
@@ -36,6 +38,31 @@ fun Application.configureSockets() {
         }
 
         webSocket("/tasks2") {
+            //현재 session을 sessions에 추가
+            sessions.add(this)
+            sendAllTasks()
+
+            while(true) {
+                //클라이언트가 보낸 새 작업을 역직렬화하여 수신
+                val newTask = receiveDeserialized<Task>()
+                TaskRepository.addTask(newTask)
+                for(session in sessions) {
+                    session.sendSerialized(newTask)
+                }
+            }
+        }
+
+        webSocket("/delete/{taskName}") {
+            val name = call.parameters["taskName"]
+            println("taskName: $name")
+
+            if (name == null) {
+                outgoing.send(Frame.Text("Invalid task name"))
+                close(CloseReason(CloseReason.Codes.CANNOT_ACCEPT, "Invalid task name"))
+                return@webSocket
+            }
+
+            TaskRepository.removeTask(name)
             //현재 session을 sessions에 추가
             sessions.add(this)
             sendAllTasks()

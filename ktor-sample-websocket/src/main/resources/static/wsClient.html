@@ -14,6 +14,15 @@
             socket.onmessage = readAndDisplayTask;
         }
 
+        function deleteSocket(taskName) {
+            serverURL = `ws://localhost:8080/delete/${taskName}`;
+            socket = new WebSocket(serverURL);
+
+            socket.onopen = logOpenToConsole;
+            socket.onclose = logCloseToConsole;
+            socket.onmessage = readAndDisplayTask;
+        }
+
         function readAndDisplayTask(event) {
             let task = JSON.parse(event.data);
             logTaskToConsole(task);
@@ -44,7 +53,8 @@
             return tr([
                 td(task.name),
                 td(task.description),
-                td(task.priority)
+                td(task.priority),
+                button(task.name)
             ]);
         }
 
@@ -57,6 +67,19 @@
         function td(text) {
             const node = document.createElement("td");
             node.appendChild(document.createTextNode(text));
+            return node;
+        }
+
+        function button(taskName) {
+            const node = document.createElement("td");
+            const button = document.createElement("button");
+            button.textContent = "delete"
+
+            button.addEventListener("click", function() {
+                deleteSocket(taskName);
+            });
+
+            node.appendChild(button);
             return node;
         }
 
@@ -94,7 +117,10 @@
 <table rules="all">
     <thead>
     <tr>
-        <th>Name</th><th>Description</th><th>Priority</th>
+        <th>Name</th>
+        <th>Description</th>
+        <th>Priority</th>
+        <th>Action</th>
     </tr>
     </thead>
     <tbody id="tasksTableBody">
