@@ -32,7 +32,7 @@ fun Application.configureSockets() {
 
         webSocket("/tasks") {
 
-            sendAllTasks()
+            sendAllTasks(1000)
 
             close(CloseReason(CloseReason.Codes.NORMAL, "All done"))
         }
@@ -40,7 +40,7 @@ fun Application.configureSockets() {
         webSocket("/tasks2") {
             //현재 session을 sessions에 추가
             sessions.add(this)
-            sendAllTasks()
+            sendAllTasks(1000)
 
             while(true) {
                 //클라이언트가 보낸 새 작업을 역직렬화하여 수신
@@ -65,7 +65,7 @@ fun Application.configureSockets() {
             TaskRepository.removeTask(name)
             //현재 session을 sessions에 추가
             sessions.add(this)
-            sendAllTasks()
+            sendAllTasks(300)
 
             while(true) {
                 //클라이언트가 보낸 새 작업을 역직렬화하여 수신
@@ -81,9 +81,9 @@ fun Application.configureSockets() {
 
 }
 
-private suspend fun DefaultWebSocketServerSession.sendAllTasks() {
+private suspend fun DefaultWebSocketServerSession.sendAllTasks(delayTime:Long) {
     for (task in TaskRepository.allTasks()) {
         sendSerialized(task)
-        delay(1000)
+        delay(delayTime)
     }
 }

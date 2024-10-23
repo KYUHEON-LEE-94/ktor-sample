@@ -2,11 +2,9 @@
 <head>
     <title>WebSocket Client</title>
     <script>
-        let serverURL;
-        let socket;
-
+        let socket
         function setupSocket() {
-            serverURL = 'ws://localhost:8080/tasks2';
+            let serverURL = 'ws://localhost:8080/tasks2';
             socket = new WebSocket(serverURL);
 
             socket.onopen = logOpenToConsole;
@@ -15,12 +13,17 @@
         }
 
         function deleteSocket(taskName) {
-            serverURL = `ws://localhost:8080/delete/${taskName}`;
-            socket = new WebSocket(serverURL);
+            document.getElementById("tasksTableBody").innerHTML = "";
+            let serverURL = `ws://localhost:8080/delete/${taskName}`;
+            let socket2 = new WebSocket(serverURL);
 
-            socket.onopen = logOpenToConsole;
-            socket.onclose = logCloseToConsole;
-            socket.onmessage = readAndDisplayTask;
+            socket2.onopen = logOpenToConsole;
+            socket2.onclose = logCloseToConsole;
+            socket2.onmessage = readAndDisplayTask;
+        }
+
+        function sendTaskViaSocket(data) {
+            socket.send(JSON.stringify(data));
         }
 
         function readAndDisplayTask(event) {
@@ -99,9 +102,7 @@
             console.log("About to send",data);
         }
 
-        function sendTaskViaSocket(data) {
-            socket.send(JSON.stringify(data));
-        }
+
 
         function sendTaskToServer() {
             let data = buildTaskFromForm();
@@ -120,7 +121,7 @@
         <th>Name</th>
         <th>Description</th>
         <th>Priority</th>
-        <th>Action</th>
+<!--        <th>Action</th>-->
     </tr>
     </thead>
     <tbody id="tasksTableBody">
