@@ -19,12 +19,12 @@ import kotlinx.serialization.Serializable
  * <pre>
  */
 enum class Priority {
-    Low, Medium, High, Vital
+    Low, Medium, High, Vital, None
 }
 
 @Serializable
 data class Task(
     val name: String,
-    val description: String,
-    val priority: Priority
+    val description: String = "",  // 기본값을 지정
+    val priority: Priority = Priority.None
 )

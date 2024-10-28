@@ -43,13 +43,33 @@ fun Application.configureSockets() {
             sessions.add(this)
             sendAllTasks(1000)
 
-            while(true) {
-                //클라이언트가 보낸 새 작업을 역직렬화하여 수신
-                val newTask = receiveDeserialized<TaskMessage>()
-                println("newTask: ${newTask.command}")
-                newTask.task?.let { TaskRepository.addTask(it) }
+            while (true) {
+                // 클라이언트가 보낸 메시지를 역직렬화하여 수신
+                val incomingMessage = receiveDeserialized<TaskMessage>()  // TaskMessage에 작업과 명령을 포함
+
+                when (incomingMessage.command) {
+                    "add" -> {
+                        val newTask = incomingMessage.task
+                        newTask?.let { TaskRepository.addTask(it) }
+                        for (session in sessions) {
+                            session.sendSerialized(newTask)
+                        }
+                    }
+                    "delete" -> {
+                        val taskNameToDelete = incomingMessage.task?.name
+                        if (taskNameToDelete != null) {
+                            TaskRepository.removeTask(taskNameToDelete)
+                            for (session in sessions) {
+                                session.sendSerialized(TaskMessage("delete", Task(taskNameToDelete, "", Priority.Low)))
+                            }
+                        }
+                    }
+                }
+
+                //기본적으로 보여주기
+                println("newTask: ${incomingMessage.command}")
                 for(session in sessions) {
-                    session.sendSerialized(newTask)
+                    session.sendSerialized(incomingMessage.task)
                 }
             }
         }
