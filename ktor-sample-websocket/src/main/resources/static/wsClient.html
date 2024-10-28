@@ -12,18 +12,26 @@
             socket.onmessage = readAndDisplayTask;
         }
 
-        function deleteSocket(taskName) {
-            document.getElementById("tasksTableBody").innerHTML = "";
-            let serverURL = `ws://localhost:8080/delete/${taskName}`;
-            let socket2 = new WebSocket(serverURL);
+        // 특정 작업을 테이블에서 제거하는 함수
+        function removeTaskFromTable(taskName) {
+            const tableBody = document.getElementById("tasksTableBody");
+            const rows = tableBody.getElementsByTagName("tr");
 
-            socket2.onopen = logOpenToConsole;
-            socket2.onclose = logCloseToConsole;
-            socket2.onmessage = readAndDisplayTask;
+            for (let row of rows) {
+                if (row.cells[0].textContent === taskName) {
+                    tableBody.removeChild(row);
+                    break;
+                }
+            }
         }
-
         function sendTaskViaSocket(data) {
             socket.send(JSON.stringify(data));
+        }
+
+        function sendDeleteRequest(taskName) {
+            // 'delete' 명령을 TaskMessage 형식으로 서버에 보냅니다.
+            const message = JSON.stringify({ command: "delete", task: { name: taskName } });
+            socket.send(message);  // 기존 연결된 소켓을 사용해 삭제 요청을 보냅니다.
         }
 
         function readAndDisplayTask(event) {
@@ -79,7 +87,7 @@
             button.textContent = "delete"
 
             button.addEventListener("click", function() {
-                deleteSocket(taskName);
+                sendDeleteRequest(taskName);
             });
 
             node.appendChild(button);

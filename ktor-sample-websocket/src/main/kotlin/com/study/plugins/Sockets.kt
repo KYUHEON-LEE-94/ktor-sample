@@ -2,6 +2,7 @@ package com.study.plugins
 
 import com.study.model.Priority
 import com.study.model.Task
+import com.study.model.TaskMessage
 import com.study.repo.TaskRepository
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.*
@@ -44,33 +45,9 @@ fun Application.configureSockets() {
 
             while(true) {
                 //클라이언트가 보낸 새 작업을 역직렬화하여 수신
-                val newTask = receiveDeserialized<Task>()
-                TaskRepository.addTask(newTask)
-                for(session in sessions) {
-                    session.sendSerialized(newTask)
-                }
-            }
-        }
-
-        webSocket("/delete/{taskName}") {
-            val name = call.parameters["taskName"]
-            println("taskName: $name")
-
-            if (name == null) {
-                outgoing.send(Frame.Text("Invalid task name"))
-                close(CloseReason(CloseReason.Codes.CANNOT_ACCEPT, "Invalid task name"))
-                return@webSocket
-            }
-
-            TaskRepository.removeTask(name)
-            //현재 session을 sessions에 추가
-            sessions.add(this)
-            sendAllTasks(300)
-
-            while(true) {
-                //클라이언트가 보낸 새 작업을 역직렬화하여 수신
-                val newTask = receiveDeserialized<Task>()
-                TaskRepository.addTask(newTask)
+                val newTask = receiveDeserialized<TaskMessage>()
+                println("newTask: ${newTask.command}")
+                newTask.task?.let { TaskRepository.addTask(it) }
                 for(session in sessions) {
                     session.sendSerialized(newTask)
                 }
