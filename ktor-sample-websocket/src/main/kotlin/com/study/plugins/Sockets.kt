@@ -7,6 +7,7 @@ import com.study.repo.TaskRepository
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.*
 import io.ktor.server.application.*
+import io.ktor.server.engine.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
@@ -46,13 +47,14 @@ fun Application.configureSockets() {
             while (true) {
                 // 클라이언트가 보낸 메시지를 역직렬화하여 수신
                 val incomingMessage = receiveDeserialized<TaskMessage>()  // TaskMessage에 작업과 명령을 포함
-
+                println("incomingMessage: $incomingMessage")
                 when (incomingMessage.command) {
                     "add" -> {
                         val newTask = incomingMessage.task
                         newTask?.let { TaskRepository.addTask(it) }
                         for (session in sessions) {
                             session.sendSerialized(newTask)
+                            session.sendSerialized(TaskMessage("add", newTask))
                         }
                     }
                     "delete" -> {
@@ -67,7 +69,7 @@ fun Application.configureSockets() {
                 }
 
                 //기본적으로 보여주기
-                println("newTask: ${incomingMessage.command}")
+               println("newTask: ${incomingMessage.command}")
                 for(session in sessions) {
                     session.sendSerialized(incomingMessage.task)
                 }
@@ -80,7 +82,8 @@ fun Application.configureSockets() {
 
 private suspend fun DefaultWebSocketServerSession.sendAllTasks(delayTime:Long) {
     for (task in TaskRepository.allTasks()) {
-        sendSerialized(task)
+        val taskMessage = TaskMessage("setup", task)
+        sendSerialized(taskMessage)
         delay(delayTime)
     }
 }

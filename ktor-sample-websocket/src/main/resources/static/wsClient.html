@@ -25,7 +25,12 @@
             }
         }
         function sendTaskViaSocket(data) {
-            socket.send(JSON.stringify(data));
+            let taskMessage = {
+                command: "add",
+                task: data
+            }
+            console.log(taskMessage);
+            socket.send(JSON.stringify(taskMessage));
         }
 
         function sendDeleteRequest(taskName) {
@@ -35,9 +40,17 @@
         }
 
         function readAndDisplayTask(event) {
-            let task = JSON.parse(event.data);
+            let taskMessage = JSON.parse(event.data);
+            console.log(taskMessage);
+            let task = taskMessage.task;
+            let command = taskMessage.command;
             logTaskToConsole(task);
-            addTaskToTable(task);
+            if (command === "delete") {
+                // 삭제 명령이라면, 해당 작업을 화면에서 제거
+                removeTaskFromTable(task.name);
+            }else{
+                addTaskToTable(task);
+            }
         }
 
         function logTaskToConsole(task) {
