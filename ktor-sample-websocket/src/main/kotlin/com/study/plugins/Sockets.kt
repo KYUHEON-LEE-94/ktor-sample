@@ -33,11 +33,10 @@ fun Application.configureSockets() {
         val sessions = Collections.synchronizedList<WebSocketServerSession>(ArrayList())
 
         webSocket("/tasks") {
-
             sendAllTasks(1000)
-
             close(CloseReason(CloseReason.Codes.NORMAL, "All done"))
         }
+
 
         webSocket("/tasks2") {
             //현재 session을 sessions에 추가
@@ -53,7 +52,6 @@ fun Application.configureSockets() {
                         val newTask = incomingMessage.task
                         newTask?.let { TaskRepository.addTask(it) }
                         for (session in sessions) {
-                            session.sendSerialized(newTask)
                             session.sendSerialized(TaskMessage("add", newTask))
                         }
                     }
@@ -68,11 +66,6 @@ fun Application.configureSockets() {
                     }
                 }
 
-                //기본적으로 보여주기
-               println("newTask: ${incomingMessage.command}")
-                for(session in sessions) {
-                    session.sendSerialized(incomingMessage.task)
-                }
             }
         }
     }
