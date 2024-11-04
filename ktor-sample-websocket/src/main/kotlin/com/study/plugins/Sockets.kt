@@ -32,16 +32,11 @@ fun Application.configureSockets() {
         // 현재 연결된 모든 클라이언트의 세션을 저장
         val sessions = Collections.synchronizedList<WebSocketServerSession>(ArrayList())
 
+
         webSocket("/tasks") {
-            sendAllTasks(1000)
-            close(CloseReason(CloseReason.Codes.NORMAL, "All done"))
-        }
-
-
-        webSocket("/tasks2") {
             //현재 session을 sessions에 추가
             sessions.add(this)
-            sendAllTasks(1000)
+            sendAllTasks(500)
 
             while (true) {
                 // 클라이언트가 보낸 메시지를 역직렬화하여 수신
@@ -55,6 +50,7 @@ fun Application.configureSockets() {
                             session.sendSerialized(TaskMessage("add", newTask))
                         }
                     }
+
                     "delete" -> {
                         val taskNameToDelete = incomingMessage.task?.name
                         if (taskNameToDelete != null) {
@@ -64,6 +60,7 @@ fun Application.configureSockets() {
                             }
                         }
                     }
+
                 }
 
             }

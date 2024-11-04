@@ -3,8 +3,8 @@
     <title>WebSocket Client</title>
     <script>
         let socket
+        const serverURL = 'ws://localhost:8080/tasks';
         function setupSocket() {
-            let serverURL = 'ws://localhost:8080/tasks2';
             socket = new WebSocket(serverURL);
 
             socket.onopen = logOpenToConsole;
@@ -55,11 +55,13 @@
         }
 
         function logTaskToConsole(task) {
+            sessionStorage.setItem("socketConnected", "true");
             console.log(`Received ${task.name}`);
         }
 
         function logCloseToConsole() {
-            console.log("Web socket connection closed");
+            sessionStorage.removeItem("socketConnected");
+            socket = new WebSocket(serverURL);
         }
 
         function logOpenToConsole() {
@@ -75,6 +77,7 @@
         }
 
         function taskRow(task) {
+
             return tr([
                 td(task.name),
                 td(task.description),
@@ -85,6 +88,7 @@
 
         function tr(children) {
             const node = document.createElement("tr");
+            node.classList.add("bg-white", "border-b", "dark:bg-gray-800", "dark:border-gray-700", "hover:bg-gray-50","dark:hover:bg-gray-600");
             children.forEach(child => node.appendChild(child));
             return node;
         }
@@ -98,6 +102,7 @@
         function button(taskName) {
             const node = document.createElement("td");
             const button = document.createElement("button");
+            button.classList.add("font-medium", "text-blue-600","dark:text-blue-500", "hover:underline");
             button.textContent = "delete"
 
             button.addEventListener("click", function() {
@@ -133,46 +138,58 @@
             //prevent form submission
             return false;
         }
+
+        window.onload = function() {
+            if (sessionStorage.getItem("socketConnected") === "true") {
+                setupSocket(); // 연결 상태가 저장되어 있으면 WebSocket 설정
+            } else {
+                setupSocket(); // 새로 연결 설정
+            }
+        };
     </script>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body onload="setupSocket()">
-<h1>Viewing Tasks Via WebSockets</h1>
-<table rules="all">
-    <thead>
-    <tr>
-        <th>Name</th>
-        <th>Description</th>
-        <th>Priority</th>
-<!--        <th>Action</th>-->
-    </tr>
-    </thead>
-    <tbody id="tasksTableBody">
-    </tbody>
-</table>
-<div>
-    <h3>Create a new task</h3>
-    <form onsubmit="return sendTaskToServer()">
-        <div>
-            <label for="newTaskName">Name: </label>
-            <input type="text" id="newTaskName"
-                   name="newTaskName" size="10">
-        </div>
-        <div>
-            <label for="newTaskDescription">Description: </label>
-            <input type="text" id="newTaskDescription"
-                   name="newTaskDescription" size="20">
-        </div>
-        <div>
-            <label for="newTaskPriority">Priority: </label>
-            <select id="newTaskPriority" name="newTaskPriority">
-                <option name="Low">Low</option>
-                <option name="Medium">Medium</option>
-                <option name="High">High</option>
-                <option name="Vital">Vital</option>
-            </select>
-        </div>
-        <input type="submit">
-    </form>
+<body>
+<div class="mx-auto">
+    <h1 class="text-3xl font-bold">Viewing Tasks Via WebSockets</h1>
+    <table rules="all" class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+        <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+        <tr>
+            <th scope="col" class="px-6 py-3">Name</th>
+            <th scope="col" class="px-6 py-3">Description</th>
+            <th scope="col" class="px-6 py-3">Priority</th>
+            <th scope="col" class="px-6 py-3">Action</th>
+        </tr>
+        </thead>
+        <tbody id="tasksTableBody">
+        </tbody>
+    </table>
+    <div>
+        <h3>Create a new task</h3>
+        <form onsubmit="return sendTaskToServer()">
+            <div class="w-full max-w-sm min-w-[300px]">
+                <label for="newTaskName">Name: </label>
+                <input type="text" id="newTaskName"
+                       name="newTaskName" size="10" class="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow">
+            </div>
+            <div class="w-full max-w-sm min-w-[300px]">
+                <label for="newTaskDescription">Description: </label>
+                <input type="text" id="newTaskDescription"
+                       name="newTaskDescription" size="20" class="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow">
+            </div>
+            <div class="w-full max-w-sm min-w-[300px]">
+                <label for="newTaskPriority">Priority: </label>
+                <select id="newTaskPriority" name="newTaskPriority" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                    <option name="Low">Low</option>
+                    <option name="Medium">Medium</option>
+                    <option name="High">High</option>
+                    <option name="Vital">Vital</option>
+                </select>
+            </div>
+            <button type="submit" class="font-medium text-black-600 hover:bg-tomato-600">Submit</button>
+        </form>
+    </div>
 </div>
+
 </body>
 </html>
