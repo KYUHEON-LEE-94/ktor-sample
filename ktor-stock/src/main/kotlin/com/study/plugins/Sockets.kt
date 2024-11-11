@@ -1,21 +1,10 @@
 package com.study.plugins
 
-import com.study.model.Priority
-import com.study.model.Task
-import com.study.model.TaskMessage
-import com.study.repo.TaskRepository
-import io.ktor.http.*
 import io.ktor.serialization.kotlinx.*
 import io.ktor.server.application.*
-import io.ktor.server.engine.*
-import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
-import io.ktor.websocket.*
-import kotlinx.coroutines.delay
 import kotlinx.serialization.json.Json
-import java.util.ArrayList
-import java.util.Collections
 import kotlin.time.Duration
 
 fun Application.configureSockets() {
