@@ -1,5 +1,6 @@
 package com.study.model
 
+import com.study.util.loadApiKey
 import java.time.LocalDate
 
 /**
@@ -19,7 +20,7 @@ import java.time.LocalDate
  * <pre>
  */
 data class StockInfoResponse(
-    val resultCode: String,       // API 호출 결과 상태 코드 (예: "00")
+    val resultCode: String = loadApiKey(),       // API 호출 결과 상태 코드 (예: "00")
     val resultMsg: String,        // API 호출 결과 상태 (예: "NORMAL SERVICE.")
     val numOfRows: Int,           // 한 페이지 결과 수 (예: 1)
     val pageNo: Int,              // 페이지 번호 (예: 1)

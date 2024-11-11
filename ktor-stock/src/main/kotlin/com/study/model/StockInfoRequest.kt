@@ -1,5 +1,6 @@
 package com.study.model
 
+import com.study.util.loadApiKey
 import java.time.LocalDate
 
 /**
@@ -19,7 +20,7 @@ import java.time.LocalDate
  * <pre>
  */
 data class StockInfoRequest(
-    val serviceKey: String,
+    val serviceKey: String = loadApiKey(),
     val numOfRows: Int, //한 페이지 결과 수
     val pageNo: Int, //페이지 번호
     val resultType: String,
