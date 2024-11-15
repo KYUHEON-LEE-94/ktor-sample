@@ -25,6 +25,9 @@ repositories {
 }
 
 dependencies {
+    implementation("io.ktor:ktor-client-core:2.3.0") // core Ktor client
+    implementation("io.ktor:ktor-client-cio:2.3.0")  // CIO 엔진 사용
+
     implementation("io.ktor:ktor-server-core-jvm")
     implementation("io.ktor:ktor-server-content-negotiation-jvm")
     implementation("io.ktor:ktor-server-host-common-jvm")
