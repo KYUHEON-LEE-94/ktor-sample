@@ -1,6 +1,7 @@
 package com.study
 
 import com.study.plugins.*
+import com.study.plugins.configureSerialization
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*

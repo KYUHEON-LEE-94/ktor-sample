@@ -1,6 +1,6 @@
 package com.study.model
 
-import com.study.util.loadApiKey
+import com.study.util.ApiKeyLoader.Companion.loadApiKey
 import java.time.LocalDate
 
 /**
