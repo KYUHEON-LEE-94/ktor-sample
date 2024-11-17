@@ -36,7 +36,6 @@ class ApplicationTest {
             httpClient.execute(httpGet).use { response ->
                 val entity = response.entity
                 val result = EntityUtils.toString(entity)
-                println("Response status: ${response.statusLine.statusCode}")
                 println("Raw response: $result")
                 
                 // JSON 응답 파싱
