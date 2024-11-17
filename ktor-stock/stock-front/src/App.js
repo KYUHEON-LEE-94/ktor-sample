@@ -7,19 +7,22 @@ function App() {
   const [stockUpdates, setStockUpdates] = useState([]);
 
   useEffect(() => {
-    // WebSocket 연결
+    // 백엔드 서버 주소로 직접 연결
     const ws = new WebSocket('ws://localhost:8081/stock-updates');
 
-    // WebSocket 이벤트 핸들러
     ws.onopen = () => {
       console.log('WebSocket 연결 성공');
       setSocket(ws);
     };
 
     ws.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      console.log('받은 데이터:', data);
-      setStockUpdates(prev => [...prev, data]);
+      try {
+        const data = JSON.parse(event.data);
+        console.log('받은 데이터:', data);
+        setStockUpdates(prev => [...prev, data]);
+      } catch (error) {
+        console.error('데이터 파싱 에러:', error);
+      }
     };
 
     ws.onerror = (error) => {
@@ -30,7 +33,6 @@ function App() {
       console.log('WebSocket 연결 종료');
     };
 
-    // 컴포넌트 언마운트 시 WebSocket 연결 종료
     return () => {
       if (ws) {
         ws.close();
@@ -38,30 +40,21 @@ function App() {
     };
   }, []);
 
-  // 메시지 전송 함수 예시
-  const sendMessage = (message) => {
-    if (socket && socket.readyState === WebSocket.OPEN) {
-      socket.send(JSON.stringify(message));
-    }
-  };
-
   return (
     <Router>
       <div>
         <h1>실시간 주식 업데이트</h1>
-        {/* 실시간 업데이트 표시 */}
         <div>
           {stockUpdates.map((update, index) => (
             <div key={index}>
-              {/* 받은 데이터 구조에 따라 표시 방식 수정 */}
-              <p>종목: {update.symbol}</p>
-              <p>가격: {update.price}</p>
+              {/* 받은 데이터 구조에 맞게 수정 */}
+              <p>데이터: {JSON.stringify(update)}</p>
             </div>
           ))}
         </div>
 
         <Routes>
-          {/* 기본 경로 "/" 에 대한 라우트 추가 */}
+          {/* 라우트 설정 */}
           <Route path="/" element={<Home />} />
         </Routes>
       </div>

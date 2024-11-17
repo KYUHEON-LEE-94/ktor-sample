@@ -2,15 +2,11 @@ package com.study.plugins
 
 import com.study.model.StockInfoRequest
 import com.study.model.StockInfoResponse
-import io.ktor.client.*
-import io.ktor.client.call.*
-import io.ktor.client.request.*
-import io.ktor.client.request.url
-import io.ktor.http.*
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpMethod
 import io.ktor.serialization.kotlinx.*
-import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
-import io.ktor.server.plugins.contentnegotiation.*
+import io.ktor.server.plugins.cors.routing.CORS
 import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
 import kotlinx.coroutines.delay
@@ -21,6 +17,21 @@ import org.apache.http.util.EntityUtils
 import kotlin.time.Duration
 
 fun Application.configureSockets() {
+    install(CORS) {
+        allowHost("localhost:3000")
+        allowHost("127.0.0.1:3000")
+
+        // 필요한 HTTP 메서드 허용
+        allowMethod(HttpMethod.Get)
+
+        // 필요한 헤더 허용
+        allowHeader(HttpHeaders.ContentType)
+        allowHeader(HttpHeaders.AccessControlAllowOrigin)
+
+        // WebSocket 관련 설정
+        allowNonSimpleContentTypes = true
+    }
+
     install(WebSockets) {
         //WebSocket을 통해 주고받는 메시지를 직렬화 및 역직렬화하기 위해 KotlinxWebsocketSerializationConverter를 사용
         contentConverter = KotlinxWebsocketSerializationConverter(Json)
@@ -30,8 +41,6 @@ fun Application.configureSockets() {
         //Masking은 보안상의 이유로 클라이언트에서 서버로 데이터를 전송할 때 데이터를 난독화하는 방법
         masking = false
     }
-
-
 
     routing {
         // 이전 주가 데이터 저장
