@@ -55,12 +55,18 @@ fun Application.configureSockets() {
             // WebSocket 연결이 열리면 주기적으로 API 데이터를 가져와서 전송
             while (true) {
                 val newStockInfo = fetchStockInfo(url)
+                println("result $newStockInfo")
+
+                if (lastStockInfoList.isEmpty()) lastStockInfoList.add(newStockInfo)
 
                 for (i in lastStockInfoList.indices) {
                     // 데이터가 변경된 경우에만 클라이언트로 전송
-                    if (newStockInfo != lastStockInfoList[i]) {
+                    if (newStockInfo != lastStockInfoList[i] || lastStockInfoList.size == 1) {
                         lastStockInfoList[i] = newStockInfo
                         sendSerialized(newStockInfo)
+
+                    }else{
+                        println("Duplicated Info")
                     }
 
                     // 2초마다 데이터 확인
@@ -89,7 +95,7 @@ fun fetchStockInfo(url:String): StockInfoResponse {
         httpClient.execute(httpGet).use { response ->
             val entity = response.entity
             val result = EntityUtils.toString(entity)
-            println("result $result")
+
             // JSON 응답 파싱
             return Json.decodeFromString<StockInfoResponse>(result)
         }
