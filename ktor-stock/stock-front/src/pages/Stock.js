@@ -12,12 +12,9 @@ function Stock() {
 
     ws.onmessage = (event) => {
       try {
-        console.log('받은 데이터:', event);
         const data = JSON.parse(event.data);
-        setStockUpdates((prev) => {
-          const updates = [...prev, data];
-          return updates.slice(-10); // 최신 10개만 유지
-        });
+        console.log('data:', data);
+        setStockUpdates([...data.response.body.items.item]);
       } catch (error) {
         console.error('데이터 파싱 에러:', error);
       }
@@ -41,14 +38,20 @@ function Stock() {
     };
   }, []);
 
+  useEffect(() => {
+    console.log('업데이트된 stockUpdates:', stockUpdates);
+  }, [stockUpdates]); // stockUpdates가 변경될 때 실행
+
   return (
-      <div>
-        <h1>실시간 주식 업데이트</h1>
-        <div>
-          {stockUpdates.map((update, index) => (
-            <div key={index}>
-              {/* 받은 데이터 구조에 맞게 수정 */}
-              <p>데이터: {JSON.stringify(update)}</p>
+      <div className="p-4 bg-gray-100 min-h-screen">
+        <h1 className="text-2xl font-bold text-center mb-4">실시간 주식 업데이트</h1>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {stockUpdates.map((stock, index) => (
+            <div key={index} className="bg-white shadow-md rounded-lg p-4">
+              <h2 className="text-xl font-semibold">기업명: {stock.itmsNm}</h2>
+              <p className="text-gray-700">시가: {stock.mkp}</p>
+              <p className="text-gray-700">최고가: {stock.hipr}</p>
+              <p className="text-gray-700">저가: {stock.lopr}</p>
             </div>
           ))}
         </div>
