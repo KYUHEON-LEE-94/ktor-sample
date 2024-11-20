@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 
 
 const stockInfoRequest = {
@@ -33,22 +33,18 @@ const stockInfoRequest = {
 function Stock() {
   const [stockUpdates, setStockUpdates] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [searchTerm, setSearchTerm] = useState("");
   const itemsPerPage = 10;
-
-  const handleSearch = () => {
-    console.log('입력된 기업명:', searchTerm);
-    // 추가적인 검색 로직을 여기에 작성할 수 있습니다.
-  };
+  const inputRef = useRef(null);
+  const ws = useRef(null); // WebSocket을 위한 ref
 
   useEffect(() => {
-    const ws = new WebSocket('ws://localhost:8081/stock-updates');
+    ws.current = new WebSocket('ws://localhost:8081/stock-updates');
 
-    ws.onopen = () => {
+    ws.current.onopen = () => {
       console.log('WebSocket 연결 성공');
     };
 
-    ws.onmessage = (event) => {
+    ws.current.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
         console.log('data:', data);
@@ -70,21 +66,21 @@ function Stock() {
     };
 
     return () => {
-      if (ws && ws.readyState === WebSocket.OPEN) {
-        ws.close();
+      if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+        ws.current.close();
       }
     };
   }, []);
 
-  // 페이지네이션 로직
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = stockUpdates
-    .slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(stockUpdates.length / itemsPerPage);
-
+ 
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
+    // 페이지 번호를 백엔드로 전송
+    const pageRequest = {
+      pageNo: pageNumber,
+      // 필요한 다른 데이터도 여기에 추가할 수 있습니다.
+    };
+    ws.current.send(JSON.stringify(pageRequest)); // 페이지 번호를 JSON 문자열로 변환하여 전송
   };
 
   return (
@@ -92,19 +88,18 @@ function Stock() {
         <h1 className="text-2xl font-bold text-center mb-4">실시간 주식 업데이트</h1>
         
         <div className="mb-4">
-          <input
+        <input
             name="itmsNm"
             type="text"
             placeholder="기업명을 입력하세요"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="border rounded p-2 w-50"
+            ref={inputRef}
+            className="border rounded p-2 w-full"
           />
-           <button onClick={handleSearch} className="mt-2 bg-blue-500 text-white rounded p-2">검색</button>
+           <button onClick={() => console.log(inputRef.current.value)} className="mt-2 bg-blue-500 text-white rounded p-2">검색</button>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {currentItems.map((stock, index) => (
+          {stockUpdates.map((stock, index) => (
             <div key={index} className="bg-white shadow-md rounded-lg p-4">
               <h2 className="text-xl font-semibold">기업명: {stock.itmsNm} ({stock.mrktCtg})</h2>
               <p className="text-gray-700">시가: {stock.mkp}</p>
@@ -114,10 +109,10 @@ function Stock() {
           ))}
         </div>
         <div className="flex justify-center mt-4">
-          {Array.from({ length: totalPages }, (_, index) => (
+          {Array.from({ length: Math.ceil(stockUpdates.length / itemsPerPage) }, (_, index) => (
             <button
               key={index + 1}
-              onClick={() => handlePageChange(index + 1)}
+              onClick={() => handlePageChange(index + 1)} // 페이지 번호 클릭 시 핸들러 호출
               className={`mx-1 px-4 py-2 rounded ${currentPage === index + 1 ? 'bg-blue-500 text-white' : 'bg-gray-300 text-black'}`}
             >
               {index + 1}

@@ -9,7 +9,9 @@ import io.ktor.server.application.*
 import io.ktor.server.plugins.cors.routing.CORS
 import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
+import io.ktor.websocket.*
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.serialization.json.Json
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.impl.client.HttpClients
@@ -48,12 +50,30 @@ fun Application.configureSockets() {
 
         webSocket("/stock-updates") {
 
-            val request = StockInfoRequest()
-
-            var url = makeUrl(request)
+            var request = StockInfoRequest()
 
             // WebSocket 연결이 열리면 주기적으로 API 데이터를 가져와서 전송
             while (true) {
+            // 클라이언트로부터 메시지 수신 - 메시지를 받을 떄까지 대기함
+                try {
+                    val message = withTimeoutOrNull(2000) { // 2초 동안 메시지를 기다림
+                        incoming.receive() // 메시지 수신 대기
+                    }
+
+                    if (message != null && message is Frame.Text) {
+                        // 수신한 메시지를 JSON으로 파싱
+                        val pageRequest = Json.decodeFromString<StockInfoRequest>(message.readText())
+                        println("pageRequest $pageRequest")
+                        request = request.copy(pageNo = pageRequest.pageNo) // 페이지 번호 업데이트
+                    } else {
+                        println("No message received, using default request: $request")
+                    }
+                } catch (e: Exception) {
+                    println("Error while receiving message: ${e.message}")
+                }
+
+                var url = makeUrl(request)
+
                 val newStockInfo = fetchStockInfo(url)
                 println("result $newStockInfo")
 
