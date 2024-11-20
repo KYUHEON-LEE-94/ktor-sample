@@ -47,7 +47,7 @@ data class Items(
 data class StockInfoItem(
     val basDt: String,        // 기준 날짜
     val srtnCd: String,       // 단축 코드
-    val isinCd: String,       // 국제 증권 식별 번호
+    val isinCd: String,       // 국제 증권 식별 번호ㅎ
     val itmsNm: String,       // 종목명
     val mrktCtg: String,      // 시장 구분 (예: KOSDAQ, KOSPI)
     val clpr: String,         // 종가 (Close Price)

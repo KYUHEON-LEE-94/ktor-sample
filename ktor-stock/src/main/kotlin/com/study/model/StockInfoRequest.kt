@@ -1,6 +1,7 @@
 package com.study.model
 
 import com.study.util.ApiKeyLoader.Companion.loadApiKey
+import kotlinx.serialization.Serializable
 import java.time.LocalDate
 
 /**
@@ -19,15 +20,16 @@ import java.time.LocalDate
  *
  * <pre>
  */
+@Serializable
 data class StockInfoRequest(
     val serviceKey: String = loadApiKey(),
     val numOfRows: Int = 10, //한 페이지 결과 수
     val pageNo: Int = 1, //페이지 번호
     val resultType: String = "json",
-    val basDt:LocalDate = LocalDate.now(),
-    val beginBasDt:LocalDate = LocalDate.now().minusYears(1),
-    val endBasDt:LocalDate = LocalDate.now(),
-    val likeBasDt:LocalDate = LocalDate.now(),
+    val basDt: String = "",
+    val beginBasDt:String = "",
+    val endBasDt:String = "",
+    val likeBasDt:String = "",
     val likeSrtnCd:String = "",
     val isinCd:String = "",
     val likeIsinCd:String = "",
