@@ -44,25 +44,38 @@ function Stock() {
       ...stockRequestVo, // 기존 상태를 복사
       itmsNm: inputRef.current.value // 입력된 기업명으로 업데이트
     };
-    console.log(newStockRequestVo)
+    console.log(newStockRequestVo);
     setStockRequestVo(newStockRequestVo); 
-    ws.current.send(JSON.stringify(newStockRequestVo));
+
+    if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+      ws.current.send(JSON.stringify(newStockRequestVo)); // WebSocket이 열려 있을 때만 전송
+    }
   }
 
-  useEffect(() => {
+  const connectWebSocket = () => {
+    if (ws.current) {
+      console.log('WebSocket이 이미 연결되어 있습니다.');
+      return; // 이미 연결된 경우 함수 종료
+    }
+
     ws.current = new WebSocket('ws://localhost:8081/stock-updates');
 
     ws.current.onopen = () => {
       console.log('WebSocket 연결 성공');
+
+      const newStockRequestVo = {
+        ...stockRequestVo, // 기존 상태를 복사
+      };
+      console.log("send when open : ", newStockRequestVo);
+      ws.current.send(JSON.stringify(newStockRequestVo));
     };
 
     ws.current.onmessage = (event) => {
-      ws.current.send(JSON.stringify(stockRequestVo));
       try {
         const data = JSON.parse(event.data);
         console.log('data:', data);
         setStockUpdates([...data.response.body.items.item]);
-        setStockTotlCount(data.response.body.totalCount)
+        setStockTotlCount(data.response.body.totalCount);
       } catch (error) {
         console.error('데이터 파싱 에러:', error);
       }
@@ -76,8 +89,13 @@ function Stock() {
       console.log('WebSocket 연결 종료');
       setTimeout(() => {
         console.log('WebSocket 재연결 시도');
-      }, 3000); // 필요 시 재연결
+        connectWebSocket(); // 재연결 시도
+      }, 5000); // 3초 후 재연결
     };
+  };
+
+  useEffect(() => {
+    connectWebSocket(); // WebSocket 연결 시도
 
     return () => {
       if (ws.current && ws.current.readyState === WebSocket.OPEN) {
@@ -97,7 +115,12 @@ function Stock() {
       pageNo: pageNumber // 입력된 기업명으로 업데이트
     };
     setStockRequestVo(newStockRequestVo); 
-    ws.current.send(JSON.stringify(newStockRequestVo)); // 페이지 번호를 JSON 문자열로 변환하여 전송
+    setCurrentPage(pageNumber)
+    
+    if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+      console.log("send when handlePageChange : ", newStockRequestVo)
+      ws.current.send(JSON.stringify(newStockRequestVo));
+    }
   };
 
   // 페이지 버튼 생성 로직
@@ -123,7 +146,7 @@ function Stock() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {stockUpdates.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((stock, index) => (
+          {stockUpdates.map((stock, index) => (
             <div key={index} className="bg-white shadow-md rounded-lg p-4">
               <h2 className="text-xl font-semibold">기업명: {stock.itmsNm} ({stock.mrktCtg})</h2>
               <p className="text-gray-700">시가: {stock.mkp}</p>

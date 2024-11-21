@@ -11,6 +11,7 @@ import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.serialization.json.Json
 import org.apache.http.client.methods.HttpGet
@@ -38,25 +39,21 @@ fun Application.configureSockets() {
         //WebSocket을 통해 주고받는 메시지를 직렬화 및 역직렬화하기 위해 KotlinxWebsocketSerializationConverter를 사용
         contentConverter = KotlinxWebsocketSerializationConverter(Json)
         pingPeriod = Duration.parse("15s")
-        timeout = Duration.parse("15s")
         maxFrameSize = Long.MAX_VALUE
         //Masking은 보안상의 이유로 클라이언트에서 서버로 데이터를 전송할 때 데이터를 난독화하는 방법
         masking = false
     }
 
     routing {
-        // 이전 주가 데이터 저장
-        var lastStockInfoList: MutableList<StockInfoResponse> = mutableListOf()
-
         webSocket("/stock-updates") {
 
             var request = StockInfoRequest()
 
             // WebSocket 연결이 열리면 주기적으로 API 데이터를 가져와서 전송
-            while (true) {
+            while (isActive) {
             // 클라이언트로부터 메시지 수신 - 메시지를 받을 떄까지 대기함
                 try {
-                    val message = withTimeoutOrNull(1000) { // 1초 동안 메시지를 기다림
+                    val message = withTimeoutOrNull(500) { // 1초 동안 메시지를 기다림
                         incoming.receive() // 메시지 수신 대기
                     }
 
@@ -76,23 +73,9 @@ fun Application.configureSockets() {
 
                 val newStockInfo = fetchStockInfo(url)
                 println("result $newStockInfo")
+                sendSerialized(newStockInfo)
 
-                if (lastStockInfoList.isEmpty()) lastStockInfoList.add(newStockInfo)
-
-                for (i in lastStockInfoList.indices) {
-                    // 데이터가 변경된 경우에만 클라이언트로 전송
-                    if (newStockInfo != lastStockInfoList[i] || lastStockInfoList.size == 1) {
-                        lastStockInfoList[i] = newStockInfo
-                        sendSerialized(newStockInfo)
-
-                    }else{
-                        println("Duplicated Info")
-                    }
-
-                    // 2초마다 데이터 확인
-                    delay(1000)
-                }
-
+                delay(1000)
             }
         }
 
@@ -107,8 +90,8 @@ fun makeUrl(request:StockInfoRequest): String{
 
 fun fetchStockInfo(url:String): StockInfoResponse {
 
-
     HttpClients.createDefault().use { httpClient ->
+
         val httpGet = HttpGet(url)
         httpGet.addHeader("Accept", "application/json")
 
