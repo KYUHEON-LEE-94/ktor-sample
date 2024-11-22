@@ -23,7 +23,7 @@ import java.time.LocalDate
 @Serializable
 data class StockInfoRequest(
     val serviceKey: String = loadApiKey(),
-    val numOfRows: Int = 10, //한 페이지 결과 수
+    val numOfRows: Int = 20, //한 페이지 결과 수
     val pageNo: Int = 1, //페이지 번호
     val resultType: String = "json",
     val basDt: String = "",

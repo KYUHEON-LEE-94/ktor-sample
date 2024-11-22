@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 function getCurrentDateFormatted() {
   const today = new Date();
@@ -10,7 +11,7 @@ function getCurrentDateFormatted() {
 }
 
 const stockInfoRequest = {
-  numOfRows: 10, // 한 페이지 결과 수
+  numOfRows: 20, // 한 페이지 결과 수
   pageNo: 1, // 페이지 번호
   resultType: "json",
   basDt: getCurrentDateFormatted(), // 현재 날짜
@@ -20,25 +21,26 @@ const stockInfoRequest = {
   likeSrtnCd: "",
   isinCd: "",
   likeIsinCd: "",
-  itmsNm: "", // 검색값과 종목명이 일치하는 데이터
-  likeItmsNm: "", // 종목명이 검색값을 포함하는 데이터
-  mrktCls: "", // 검색값과 시장구분이 일치하는 데이터
-  beginVs: "", // 대비가 검색값보다 크거나 같은 데이터
-  endVs: "", // 대비가 검색값보다 작은 데이터
-  beginFltRt: "", // 등락률이 검색값보다 크거나 같은 데이터
-  endFltRt: "", // 등락률이 검색값보다 작은 데이터
-  beginTrqu: 0, // 거래량이 검색값보다 크거나 같은 데이터
-  endTrqu: 0, // 거래량이 검색값보다 작은 데이터
-  beginTrPrc: 0, // 거래대금이 검색값보다 크거나 같은 데이터
-  endTrPrc: 0, // 거래대금이 검색값보다 작은 데이터
-  beginLstgStCnt: 0, // 상장주식수가 검색값보다 크거나 같은 데이터
-  endLstgStCnt: 0, // 상장주식수가 검색값보다 작은 데이터
-  beginMrktTotAmt: 0, // 시가총액이 검색값보다 크거나 같은 데이터
-  endMrktTotAmt: 0 // 시가총액이 검색값보다 작은 데이터
+  itmsNm: "",
+  likeItmsNm: "",
+  mrktCls: "",
+  beginVs: "",
+  endVs: "",
+  beginFltRt: "",
+  endFltRt: "",
+  beginTrqu: 0,
+  endTrqu: 0,
+  beginTrPrc: 0,
+  endTrPrc: 0,
+  beginLstgStCnt: 0,
+  endLstgStCnt: 0,
+  beginMrktTotAmt: 0,
+  endMrktTotAmt: 0
 };
 
-
 function Stock() {
+  const navigate = useNavigate();
+
   const [stockUpdates, setStockUpdates] = useState([]);
   const [StockTotalCount, setStockTotlCount] = useState(0);
   const [stockRequestVo, setStockRequestVo] = useState(stockInfoRequest);
@@ -46,7 +48,11 @@ function Stock() {
   const itemsPerPage = 10;
   const inputRef = useRef(null);
   const ws = useRef(null); // WebSocket을 위한 ref
-  const [marketType, setMarketType] = useState(""); // 기본값 KOSPI
+  const [marketType, setMarketType] = useState("");
+
+  const handleCardClick = (stock) => {
+    navigate('/stock-detail', { state: stockRequestVo });
+  };
 
   const searchByName = () => {
     const newStockRequestVo = {
@@ -179,9 +185,9 @@ function Stock() {
           <button onClick={searchByName} className="mt-2 bg-blue-500 text-white rounded p-2">검색</button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="cardBox">
           {stockUpdates.map((stock, index) => (
-            <div key={index} className="bg-white shadow-md rounded-lg p-4">
+            <div key={index} className="bg-white shadow-md rounded-lg p-4 cursor-pointer"  onClick={() => handleCardClick(stock)}>
               <h2 className="text-xl font-semibold">기업명: {stock.itmsNm} ({stock.mrktCtg})</h2>
               <p className="text-gray-700">시가: {stock.mkp}</p>
               <p className="text-gray-700">최고가: {stock.hipr}</p>

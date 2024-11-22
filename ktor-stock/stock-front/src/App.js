@@ -1,6 +1,7 @@
 // import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Stock from './pages/Stock';
+import StockDetail from './pages/StockDetail';
 
 function App() {
   return (
@@ -8,7 +9,7 @@ function App() {
         <Routes>
           {/* 라우트 설정 */}
           <Route path="/" element={<Stock />} />
-          {/* <Route path="/stock" element={<Stock />} /> */}
+          <Route path="/stock-detail" component={StockDetail} />
         </Routes>
     </Router>
   );
