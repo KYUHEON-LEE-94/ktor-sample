@@ -70,6 +70,7 @@ fun Application.configureSockets() {
                 }
 
                 var url = makeUrl(request)
+                println("url $url")
 
                 val newStockInfo = fetchStockInfo(url)
                 println("result $newStockInfo")
@@ -85,7 +86,13 @@ fun Application.configureSockets() {
 
 fun makeUrl(request:StockInfoRequest): String{
     return "https://apis.data.go.kr/1160100/service/GetStockSecuritiesInfoService/getStockPriceInfo" +
-            "?serviceKey=${request.serviceKey}&numOfRows=${request.numOfRows}&pageNo=${request.pageNo}&resultType=${request.resultType}"
+            "?serviceKey=${request.serviceKey}" +
+            "&numOfRows=${request.numOfRows}" +
+            "&pageNo=${request.pageNo}" +
+            "&resultType=${request.resultType}" +
+            "&basDt=${request.basDt}" +
+            "&mrktCls=${request.mrktCls}" +
+            "&itmsNm=${request.itmsNm}"
 }
 
 fun fetchStockInfo(url:String): StockInfoResponse {

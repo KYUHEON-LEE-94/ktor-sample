@@ -1,11 +1,19 @@
 import React, { useEffect, useState, useRef } from 'react';
 
+function getCurrentDateFormatted() {
+  const today = new Date();
+  const year = today.getFullYear(); // 연도
+  const month = String(today.getMonth() + 1).padStart(2, '0'); // 월 (0부터 시작하므로 +1)
+  const day = String(today.getDate() - 1).padStart(2, '0'); // 일
+
+  return `${year}${month}${day}`; // YYYYMMDD 형식으로 반환
+}
 
 const stockInfoRequest = {
   numOfRows: 10, // 한 페이지 결과 수
   pageNo: 1, // 페이지 번호
   resultType: "json",
-  basDt: "", // 현재 날짜
+  basDt: getCurrentDateFormatted(), // 현재 날짜
   beginBasDt: "", // 1년 전 날짜
   endBasDt: "", // 현재 날짜
   likeBasDt: "", // 현재 날짜
@@ -38,11 +46,13 @@ function Stock() {
   const itemsPerPage = 10;
   const inputRef = useRef(null);
   const ws = useRef(null); // WebSocket을 위한 ref
+  const [marketType, setMarketType] = useState(""); // 기본값 KOSPI
 
   const searchByName = () => {
     const newStockRequestVo = {
       ...stockRequestVo, // 기존 상태를 복사
-      itmsNm: inputRef.current.value // 입력된 기업명으로 업데이트
+      itmsNm: inputRef.current.value, // 입력된 기업명으로 업데이트
+      mrktCls: marketType // 선택된 시장 구분 추가
     };
     console.log(newStockRequestVo);
     setStockRequestVo(newStockRequestVo); 
@@ -123,6 +133,21 @@ function Stock() {
     }
   };
 
+  const handlemarketChange = (market_type) => {
+    console.log(market_type)
+    const newStockRequestVo = {
+      ...stockRequestVo, // 기존 상태를 복사
+      mrktCls: market_type // 입력된 기업명으로 업데이트
+    };
+    setStockRequestVo(newStockRequestVo); 
+    setMarketType(market_type)
+    
+    if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+      console.log("send when handlePageChange : ", newStockRequestVo)
+      ws.current.send(JSON.stringify(newStockRequestVo));
+    }
+  };
+
   // 페이지 버튼 생성 로직
   const totalPages = Math.ceil(StockTotalCount / itemsPerPage); // 총 페이지 수 계산
   const maxPagesToShow = 10; // 최대 페이지 버튼 수
@@ -134,7 +159,7 @@ function Stock() {
         <h1 className="text-2xl font-bold text-center mb-4">실시간 주식 업데이트</h1>
         
         {/* 기업명 입력창 추가 */}
-        <div className="mb-4">
+        <div className="mb-4 flex items-center">
           <input
             name="itmsNm"
             type="text"
@@ -142,6 +167,15 @@ function Stock() {
             ref={inputRef}
             className="border rounded p-2 w-30"
           />
+          <select
+            value={marketType}
+            onChange={(e) => handlemarketChange(e.target.value)} // 선택된 값 업데이트
+            className="border rounded p-2 mx-2"
+          >
+            <option value="">전체</option>
+            <option value="KOSPI">KOSPI</option>
+            <option value="KOSDAQ">KOSDAQ</option>
+          </select>
           <button onClick={searchByName} className="mt-2 bg-blue-500 text-white rounded p-2">검색</button>
         </div>
 
