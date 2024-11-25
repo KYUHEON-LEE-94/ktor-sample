@@ -3,9 +3,16 @@ import { useNavigate } from 'react-router-dom';
 
 function getCurrentDateFormatted() {
   const today = new Date();
-  const year = today.getFullYear(); // 연도
-  const month = String(today.getMonth() + 1).padStart(2, '0'); // 월 (0부터 시작하므로 +1)
-  const day = String(today.getDate() - 1).padStart(2, '0'); // 일
+  const dayOfWeek = today.getDay(); // 0: 일요일, 1: 월요일, ..., 6: 토요일
+
+  // 오늘이 월요일이라면 지난 금요일을 계산
+  let daysToLastFriday = dayOfWeek === 1 ? -3 : -((dayOfWeek + 2) % 7);
+
+  today.setDate(today.getDate() + daysToLastFriday); // 계산한 날짜로 설정
+
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  const day = String(today.getDate()).padStart(2, '0');
 
   return `${year}${month}${day}`; // YYYYMMDD 형식으로 반환
 }
@@ -51,7 +58,14 @@ function Stock() {
   const [marketType, setMarketType] = useState("");
 
   const handleCardClick = (stock) => {
-    navigate('/stock-detail', { state: stockRequestVo });
+      
+       const newStockRequestVo = {
+        ...stockRequestVo,
+       ...stock
+    };
+
+    console.log(newStockRequestVo); // 새로운 객체를 로그에 출력
+    navigate('/stock-detail', { state: newStockRequestVo }); // 새로운 객체를 navigate에 전달
   };
 
   const searchByName = () => {
@@ -125,7 +139,6 @@ function Stock() {
   }, [stockUpdates]);
 
   const handlePageChange = (pageNumber) => {
-    console.log(pageNumber)
     const newStockRequestVo = {
       ...stockRequestVo, // 기존 상태를 복사
       pageNo: pageNumber // 입력된 기업명으로 업데이트
