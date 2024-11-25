@@ -13,7 +13,7 @@ function StockDetail() {
                     <h2 className="text-xl font-semibold mb-2">기업명: {stockRequestVo.itmsNm}</h2>
                     <p className="text-gray-700"><strong>시장 구분:</strong> {stockRequestVo.mrktCls}</p>
                     <p className="text-gray-700"><strong>ISIN 코드:</strong> {stockRequestVo.isinCd}</p>
-                    <p className="text-gray-700"><strong>시가:</strong> {stockRequestVo.mkp}</p>
+                    <p className="text-gray-700"><strong>시가:</strong> {stockRequestVo.clpr}</p>
                     <p className="text-gray-700"><strong>최고가:</strong> {stockRequestVo.hipr}</p>
                     <p className="text-gray-700"><strong>저가:</strong> {stockRequestVo.lopr}</p>
                     <p className="text-gray-700"><strong>거래량:</strong> {stockRequestVo.trqu}</p>

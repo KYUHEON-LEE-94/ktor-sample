@@ -202,7 +202,7 @@ function Stock() {
           {stockUpdates.map((stock, index) => (
             <div key={index} className="bg-white shadow-md rounded-lg p-4 cursor-pointer"  onClick={() => handleCardClick(stock)}>
               <h2 className="text-xl font-semibold">기업명: {stock.itmsNm} ({stock.mrktCtg})</h2>
-              <p className="text-gray-700">시가: {stock.mkp}</p>
+              <p className="text-gray-700">시가: {stock.clpr}</p>
               <p className="text-gray-700">최고가: {stock.hipr}</p>
               <p className="text-gray-700">저가: {stock.lopr}</p>
             </div>
