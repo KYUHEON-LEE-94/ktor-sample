@@ -11,16 +11,15 @@
 ## kotlinflow
 - kotlin flow란?
 
-## ktor-stock
-- 위의 내용에서 공부한 것을 바탕으로 진행중인 주식 웹 페이지 프로젝트
+## ktor-app
+- 나만을 위한 App Page 개인 프로젝트
 ### 기술 스택
 - React
 - kotlin
 ### 목표
-- 실시간으로 주식 시세를 조회할 수 있는 사이트
-- 금융위원회 주식시세 API를 참고하여 WebSocket 통신 방식을 선택
-- ktor를 사용하여 기본적인 비동기 통신에 대한 이해
-- React를 사용한 CSR 학습
+- 사용자가 자유롭게 움직일 수 있는 Dashboard
+- 계정별로 자신만의 웹페이지를 구성
+- 사용자가 필요로 생각하는 기능들을 설정할 수 있도록 할 것
 
 # 출처
 - [ktor io](https://start.ktor.io/settings?name=ktor-sample&website=example.com&artifact=com.example.ktor-sample&kotlinVersion=2.0.20&ktorVersion=3.0.0-rc-2&buildSystem=GRADLE_KTS&engine=NETTY&configurationIn=YAML&addSampleCode=true&plugins=content-negotiation%2Crouting%2Cktor-gson%2Ccall-logging%2Ccallid).
