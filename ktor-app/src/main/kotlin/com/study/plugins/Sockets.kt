@@ -1,7 +1,7 @@
 package com.study.plugins
 
-import com.study.model.stock.StockInfoRequest
-import com.study.model.stock.StockInfoResponse
+import com.study.stock.model.StockInfoRequest
+import com.study.stock.model.StockInfoResponse
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import io.ktor.serialization.kotlinx.*

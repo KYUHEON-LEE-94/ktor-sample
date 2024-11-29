@@ -1,7 +1,5 @@
-package com.study.model.weather
+package com.study.weather.model
 
-import com.study.util.ApiKeyLoader.Companion.weatherApiKey
-import com.study.util.getCurrentDateFormatted
 import kotlinx.serialization.Serializable
 
 /**
@@ -36,21 +34,22 @@ data class Header(
 )
 @Serializable
 data class Body(
-    val numOfRows: Int = 0,
-    val pageNo: Int = 0,
-    val totalCount: Int = 0,
+    val dataType: String = "",
+    val pageNo: Long = 0,
+    val numOfRows: Long = 0,
+    val totalCount: Long = 0,
     val items: Items = Items()
 )
 @Serializable
 data class Items(
-    val item: List<StockInfoItem> = listOf()
+    val item: List<WeatherItem> = listOf()
 )
 @Serializable
-data class StockInfoItem(
-    val numOfRows: Int = 1000, //한 페이지 결과 수
-    val pageNo: Int = 1, //페이지 번호
-    val dataType: String = "json",
+data class WeatherItem(
     val baseDate:String = "",
-    val nx:Int = 0,
-    val ny:Int = 0
+    val baseTime:String = "",
+    val category: String= "",
+    var nx:Int = 0,
+    var ny:Int = 0,
+    var obsrValue:String = ""
 )

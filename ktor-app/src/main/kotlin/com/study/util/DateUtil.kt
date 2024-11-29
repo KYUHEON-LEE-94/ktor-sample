@@ -2,6 +2,7 @@ package com.study.util
 
 import kotlinx.io.files.FileNotFoundException
 import java.time.LocalDate
+import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.util.Properties
 
@@ -26,4 +27,10 @@ fun getCurrentDateFormatted(): String {
     val today = LocalDate.now()
     val formatter = DateTimeFormatter.ofPattern("yyyyMMdd")
     return today.format(formatter)
+}
+
+fun getCurrentTimeFormatted(): String {
+    val currentTime  = LocalTime.now()
+    val formatter = DateTimeFormatter.ofPattern("HHmm")
+    return currentTime.format(formatter)
 }

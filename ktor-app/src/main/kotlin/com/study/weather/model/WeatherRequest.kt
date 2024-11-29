@@ -1,8 +1,8 @@
-package com.study.model.weather
+package com.study.weather.model
 
-import com.study.util.ApiKeyLoader.Companion.stockApiKey
 import com.study.util.ApiKeyLoader.Companion.weatherApiKey
 import com.study.util.getCurrentDateFormatted
+import com.study.util.getCurrentTimeFormatted
 import kotlinx.serialization.Serializable
 
 /**
@@ -24,10 +24,11 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class WeatherRequest(
     val serviceKey: String = weatherApiKey(),
-    val numOfRows: Int = 1000, //한 페이지 결과 수
-    val pageNo: Int = 1, //페이지 번호
+    var numOfRows: Long = 1000, //한 페이지 결과 수
+    var pageNo: Long = 1, //페이지 번호
     val dataType: String = "json",
     val baseDate:String = getCurrentDateFormatted(),
+    val basetime:String = getCurrentTimeFormatted(),
     var nx:Int = 0,
     var ny:Int = 0
     )

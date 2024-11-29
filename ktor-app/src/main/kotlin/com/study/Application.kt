@@ -2,6 +2,7 @@ package com.study
 
 import com.study.plugins.*
 import com.study.plugins.configureSerialization
+import com.study.weather.service.WeatherService
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
@@ -15,9 +16,10 @@ fun main() {
 
 fun Application.module() {
 
+    val weatherService = WeatherService()
     configureSerialization()
     configureDatabases()
     configureSockets()
-    configureRouting()
+    weatherRouting(weatherService)
 
 }

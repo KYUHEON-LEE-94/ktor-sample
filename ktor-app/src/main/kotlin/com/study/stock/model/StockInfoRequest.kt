@@ -1,4 +1,4 @@
-package com.study.model.stock
+package com.study.stock.model
 
 import com.study.util.ApiKeyLoader.Companion.stockApiKey
 import kotlinx.serialization.Serializable

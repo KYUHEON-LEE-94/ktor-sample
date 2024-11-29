@@ -1,7 +1,7 @@
 package com.study
 
-import com.study.model.weather.WeatherRequest
-import com.study.model.weather.WeatherResponse
+import com.study.weather.model.WeatherRequest
+import com.study.weather.model.WeatherResponse
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import kotlinx.serialization.json.Json
@@ -14,6 +14,8 @@ class WeatherTest: StringSpec ({
             val request = WeatherRequest()
             request.nx = 55
             request.ny = 127
+            request.numOfRows = 1000
+            request.pageNo = 1
 
             println("request: $request")
 
@@ -21,10 +23,11 @@ class WeatherTest: StringSpec ({
                     "serviceKey=${request.serviceKey}" +
                     "&numOfRows=${request.numOfRows}" +
                     "&pageNo=${request.pageNo}" +
-                    "&dataType=${request.dataType}"
-            "&base_date=${request.baseDate}"
-            "&nx=${request.nx}"
-            "&ny=${request.ny}"
+                    "&dataType=${request.dataType}" +
+        "&base_date=${request.baseDate}" +
+        "&base_time=${request.basetime}" +
+        "&nx=${request.nx}" +
+        "&ny=${request.ny}"
 
             println("url: $url")
 
@@ -41,7 +44,7 @@ class WeatherTest: StringSpec ({
                     // JSON 응답 파싱
                     val weatherResponse = Json.decodeFromString<WeatherResponse>(result)
 
-                    weatherResponse.response.header.resultCode shouldBe "01"
+                    weatherResponse.response.header.resultCode shouldBe "00"
                 }
             }
         }

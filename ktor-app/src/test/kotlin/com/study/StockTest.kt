@@ -1,7 +1,7 @@
 package com.study
 
-import com.study.model.stock.StockInfoRequest
-import com.study.model.stock.StockInfoResponse
+import com.study.stock.model.StockInfoRequest
+import com.study.stock.model.StockInfoResponse
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import kotlinx.serialization.json.Json

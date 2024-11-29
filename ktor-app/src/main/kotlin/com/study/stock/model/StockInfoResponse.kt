@@ -1,4 +1,4 @@
-package com.study.model.stock
+package com.study.stock.model
 
 import kotlinx.serialization.Serializable
 
