@@ -1,8 +1,7 @@
-package com.study.model
+package com.study.model.stock
 
-import com.study.util.ApiKeyLoader.Companion.loadApiKey
+import com.study.util.ApiKeyLoader.Companion.stockApiKey
 import kotlinx.serialization.Serializable
-import java.time.LocalDate
 
 /**
  * @Description : StockPriceRequest.java
@@ -22,7 +21,7 @@ import java.time.LocalDate
  */
 @Serializable
 data class StockInfoRequest(
-    val serviceKey: String = loadApiKey(),
+    val serviceKey: String = stockApiKey(),
     val numOfRows: Int = 20, //한 페이지 결과 수
     val pageNo: Int = 1, //페이지 번호
     val resultType: String = "json",

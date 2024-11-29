@@ -1,7 +1,7 @@
 package com.study.plugins
 
-import com.study.model.StockInfoRequest
-import com.study.model.StockInfoResponse
+import com.study.model.stock.StockInfoRequest
+import com.study.model.stock.StockInfoResponse
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import io.ktor.serialization.kotlinx.*
@@ -84,7 +84,7 @@ fun Application.configureSockets() {
 }
 
 
-fun makeUrl(request:StockInfoRequest): String{
+fun makeUrl(request: StockInfoRequest): String{
     return "https://apis.data.go.kr/1160100/service/GetStockSecuritiesInfoService/getStockPriceInfo" +
             "?serviceKey=${request.serviceKey}" +
             "&numOfRows=${request.numOfRows}" +

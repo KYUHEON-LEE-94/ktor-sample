@@ -3,6 +3,7 @@ val logback_version: String by project
 val exposed_version: String by project
 val h2_version: String by project
 val postgres_version: String by project
+val kotestVersion = "5.9.1"
 
 plugins {
     kotlin("jvm") version "2.0.21"
@@ -24,6 +25,10 @@ repositories {
     mavenCentral()
 }
 
+tasks.test {
+    useJUnitPlatform()
+}
+
 dependencies {
     //apache httpclient
     implementation("org.apache.httpcomponents:httpclient:4.5.13")
@@ -41,11 +46,13 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-core:$exposed_version")
     implementation("org.jetbrains.exposed:exposed-jdbc:$exposed_version")
     implementation("org.jetbrains.exposed:exposed-dao:$exposed_version")
-    implementation("com.h2database:h2:$h2_version")
     implementation("org.postgresql:postgresql:$postgres_version")
 
     //test
     testImplementation("io.ktor:ktor-server-test-host-jvm")
     testImplementation("io.ktor:ktor-client-content-negotiation")
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
+    // Test framework
+    testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
+    // Assertion library
+    testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
 }

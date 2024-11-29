@@ -1,7 +1,8 @@
 package com.study.util
 
 import kotlinx.io.files.FileNotFoundException
-import java.io.FileInputStream
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.util.Properties
 
 /**
@@ -21,14 +22,8 @@ import java.util.Properties
  * <pre>
  */
 
-class ApiKeyLoader {
-    companion object {
-        fun loadApiKey(): String {
-            val properties = Properties()
-            val inputStream = this::class.java.classLoader.getResourceAsStream("api.properties")
-                ?: throw FileNotFoundException("Resource not found: api.properties")
-            properties.load(inputStream)
-            return properties.getProperty("API_KEY")
-        }
-    }
+fun getCurrentDateFormatted(): String {
+    val today = LocalDate.now()
+    val formatter = DateTimeFormatter.ofPattern("yyyyMMdd")
+    return today.format(formatter)
 }
