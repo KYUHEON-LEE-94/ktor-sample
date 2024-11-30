@@ -26,18 +26,27 @@ import org.apache.http.util.EntityUtils
 
 class WeatherService {
     fun getTodayWeather(request:WeatherRequest): WeatherResponse {
-        val url = "https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtNcst?" +
-                "serviceKey=${request.serviceKey}" +
-                "&numOfRows=${request.numOfRows}" +
-                "&pageNo=${request.pageNo}" +
-                "&dataType=${request.dataType}" +
-        "&base_date=${request.baseDate}" +
-        "&base_time=${request.basetime}" +
-        "&nx=${request.nx}" +
-        "&ny=${request.ny}"
+      var url = getUrl(request)
+      //url = "https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtNcst?serviceKey=uTFBpP%2FqAk5lRHyQWvQ%2Fvpo9rC2vZS9OxT7SNCf78IoN%2BWb3w6yCi5AXwmtWx8%2F5IgKRpKVAX5L8VnOPjuFVjw%3D%3D&pageNo=1&numOfRows=1000&dataType=json&base_date=20241130&base_time=0600&nx=37&ny=127"
 
         println("WeatherRequest : $url")
+        return getResponse(url)
 
+    }
+
+    private fun getUrl(request:WeatherRequest):String{
+        return "https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtNcst?" +
+                "serviceKey=${request.serviceKey}" +
+                "&pageNo=${request.pageNo}" +
+                "&numOfRows=${request.numOfRows}" +
+                "&dataType=${request.dataType}" +
+                "&base_date=${request.baseDate}" +
+                "&base_time=${request.basetime}" +
+                "&nx=${request.nx}" +
+                "&ny=${request.ny}"
+    }
+
+    private fun getResponse(url:String):WeatherResponse {
         HttpClients.createDefault().use { httpClient ->
             val httpGet = HttpGet(url)
             httpGet.addHeader("Accept", "application/json")
@@ -45,8 +54,9 @@ class WeatherService {
             httpClient.execute(httpGet).use { response ->
                 val entity = response.entity
                 val result = EntityUtils.toString(entity)
+                val decodeFromString = Json.decodeFromString<WeatherResponse>(result)
 
-                return Json.decodeFromString<WeatherResponse>(result)
+                return decodeFromString
             }
         }
     }

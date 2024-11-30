@@ -16,7 +16,7 @@ function Weather() {
 
     function getCurrentTimeFormatted() {
         const now = new Date();
-        const hours = String(now.getHours()).padStart(2, '0'); // 24시간 형식
+        const hours = String(now.getHours() - 2).padStart(2, '0'); // 24시간 형식
 
         return `${hours}00`; // HHmm 형식
     }
