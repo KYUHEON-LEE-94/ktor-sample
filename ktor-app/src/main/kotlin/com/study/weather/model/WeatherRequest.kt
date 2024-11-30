@@ -27,8 +27,8 @@ data class WeatherRequest(
     var numOfRows: Long = 1000, //한 페이지 결과 수
     var pageNo: Long = 1, //페이지 번호
     val dataType: String = "json",
-    val baseDate:String = getCurrentDateFormatted(),
-    val basetime:String = getCurrentTimeFormatted(),
+    var baseDate:String = "",
+    var basetime:String = "",
     var nx:Int = 0,
     var ny:Int = 0
     )

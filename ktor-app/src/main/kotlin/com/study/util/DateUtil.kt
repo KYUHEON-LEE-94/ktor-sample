@@ -30,7 +30,7 @@ fun getCurrentDateFormatted(): String {
 }
 
 fun getCurrentTimeFormatted(): String {
-    val currentTime  = LocalTime.now()
+    val currentTime  = LocalTime.now().withMinute(0).withSecond(0)
     val formatter = DateTimeFormatter.ofPattern("HHmm")
     return currentTime.format(formatter)
 }

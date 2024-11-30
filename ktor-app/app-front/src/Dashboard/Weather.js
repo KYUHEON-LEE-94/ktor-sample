@@ -3,7 +3,23 @@ import axios from 'axios';
 
 function Weather() {
     const [weatherData, setWeatherData] = useState(null); // 날씨 데이터를 저장할 상태
-    const [location, setLocation] = useState(null); 
+    const [locationData, setLocationData] = useState(null);
+
+    function getCurrentDateFormatted() {
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0'); // 월은 0부터 시작하므로 +1
+        const day = String(today.getDate()).padStart(2, '0');
+
+        return `${year}${month}${day}`; // YYYYMMDD 형식
+    }
+
+    function getCurrentTimeFormatted() {
+        const now = new Date();
+        const hours = String(now.getHours()).padStart(2, '0'); // 24시간 형식
+
+        return `${hours}00`; // HHmm 형식
+    }
 
     useEffect(() => {
         // Geolocation API를 사용하여 현재 위치 가져오기
@@ -15,7 +31,7 @@ function Weather() {
                         const latInt = Math.floor(latitude); // 정수값으로 변환
                         const lonInt = Math.floor(longitude); // 정수값으로 변환
                         console.log(latInt, lonInt); // 정수값 출력
-                        setLocation({ nx: latInt, ny: lonInt }); // 위치 상태 업데이트위치 상태 업데이트
+                        setLocationData({ nx: latInt, ny: lonInt, baseDate: getCurrentDateFormatted(), basetime: getCurrentTimeFormatted() }); // 위치 상태 업데이트위치 상태 업데이트
                     },
                     (error) => {
                         console.error('위치를 가져오는 데 오류가 발생했습니다:', error);
@@ -32,9 +48,10 @@ function Weather() {
     useEffect(() => {
         // 위치 정보가 있을 때 날씨 API 호출
         const fetchWeather = async () => {
-            if (location) {
+            if (locationData) {
                 try {
-                    const response = await axios.get(`http://localhost:8081/weather?nx=${location.nx}&ny=${location.ny}`);
+                    const response = await axios.get(`http://localhost:8081/weather?nx=${locationData.nx}&ny=${locationData.ny}&base_date=${locationData.baseDate}&base_time=${locationData.basetime}`);
+
                     setWeatherData(response.data); // 응답 데이터를 상태에 저장
                     console.log(response.data)
                 } catch (error) {
@@ -44,7 +61,7 @@ function Weather() {
         };
 
         fetchWeather(); // 날씨 API 호출 함수 실행
-    }, [location]); // 위치 정보가 변경될 때마다 실행
+    }, [locationData]); // 위치 정보가 변경될 때마다 실행
 
 
     return (
