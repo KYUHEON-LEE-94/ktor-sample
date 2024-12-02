@@ -12,8 +12,8 @@ import org.apache.http.util.EntityUtils
 class WeatherTest: StringSpec ({
     "Weather 기본 적인 Get 테스트" {
             val request = WeatherRequest()
-            request.nx = 55
-            request.ny = 127
+            request.nx = 55.0
+            request.ny = 127.0
             request.numOfRows = 1000
             request.pageNo = 1
 

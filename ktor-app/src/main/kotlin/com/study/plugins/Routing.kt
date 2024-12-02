@@ -1,5 +1,6 @@
 package com.study.plugins
 
+import com.study.util.GpsTransfer
 import com.study.util.getCurrentDateFormatted
 import com.study.util.getCurrentTimeFormatted
 import com.study.weather.model.WeatherRequest
@@ -15,14 +16,14 @@ fun Application.weatherRouting(weatherService: WeatherService) {
 
         get("/weather") {
 
-            val nx = call.request.queryParameters["nx"]?.toIntOrNull() ?: throw IllegalArgumentException("Parameter 'nx' is required and must be an integer.")
-            val ny = call.request.queryParameters["ny"]?.toIntOrNull() ?: throw IllegalArgumentException("Parameter 'ny' is required and must be an integer.")
-            val baseTime = call.request.queryParameters["base_time"]?.toString() ?: getCurrentDateFormatted()
-            val baseDate = call.request.queryParameters["base_date"]?.toString() ?: getCurrentTimeFormatted()
+            val nx = call.request.queryParameters["nx"]?.toDouble() ?: throw IllegalArgumentException("Parameter 'nx' is required and must be an integer.")
+            val ny = call.request.queryParameters["ny"]?.toDouble() ?: throw IllegalArgumentException("Parameter 'ny' is required and must be an integer.")
+            val baseTime = call.request.queryParameters["base_time"] ?: getCurrentDateFormatted()
+            val baseDate = call.request.queryParameters["base_date"] ?: getCurrentTimeFormatted()
 
             val request = WeatherRequest(
-                nx = nx,
-                ny = ny,
+                nx = kotlin.math.floor(nx),
+                ny = kotlin.math.floor(ny),
                 basetime = baseTime,
                 baseDate = baseDate
             )

@@ -31,7 +31,7 @@ class StockTest:StringSpec ({
 
                 // JSON 응답 파싱
                 val stockInfoResponse = Json.decodeFromString<StockInfoResponse>(result)
-                stockInfoResponse.response.header.resultCode shouldBe "01"
+                stockInfoResponse.response.header.resultCode shouldBe "00"
             }
         }
     }
