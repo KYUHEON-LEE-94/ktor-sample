@@ -49,7 +49,9 @@ function Weather() {
         const fetchWeather = async () => {
             if (locationData) {
                 try {
-                    const response = await axios.get(`http://localhost:8081/weather?nx=${locationData.nx}&ny=${locationData.ny}&base_date=${locationData.baseDate}&base_time=${locationData.basetime}`);
+                    let nx = Math.floor(locationData.nx)
+                    let ny = Math.floor(locationData.ny)
+                    const response = await axios.get(`http://localhost:8081/weather?nx=${nx}&ny=${ny}&base_date=${locationData.baseDate}&base_time=${locationData.basetime}`);
 
                     setWeatherData(response.data); // 응답 데이터를 상태에 저장
                     console.log(response.data)
@@ -84,9 +86,11 @@ function Weather() {
         <div>
             {/* 날씨 정보를 여기에 추가하세요 */}
             <h3>날씨 정보</h3>
+            {locationInfo && locationInfo.city && locationInfo.road && ( // locationInfo가 null이 아닐 때만 렌더링
                 <div>
-                    <p>현재 위치: {locationInfo.city}, {locationInfo.road} </p>
+                    <p>현재 위치: {locationInfo.city}, {locationInfo.road}</p> {/* 도시와 도로 출력 */}
                 </div>
+            )}
             
         </div>
     );
