@@ -1,5 +1,6 @@
 package com.study.weather.service
 
+import com.study.weather.model.PrecipitationType
 import com.study.weather.model.WeatherRequest
 import com.study.weather.model.WeatherResponse
 import kotlinx.serialization.json.Json
@@ -26,9 +27,7 @@ import org.apache.http.util.EntityUtils
 
 class WeatherService {
     fun getTodayWeather(request:WeatherRequest): WeatherResponse {
-      var url = getUrl(request)
-      //url = "https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtNcst?serviceKey=uTFBpP%2FqAk5lRHyQWvQ%2Fvpo9rC2vZS9OxT7SNCf78IoN%2BWb3w6yCi5AXwmtWx8%2F5IgKRpKVAX5L8VnOPjuFVjw%3D%3D&pageNo=1&numOfRows=1000&dataType=json&base_date=20241130&base_time=0600&nx=37&ny=127"
-
+      val url = getUrl(request)
         println("WeatherRequest : $url")
         return getResponse(url)
 
@@ -54,9 +53,21 @@ class WeatherService {
             httpClient.execute(httpGet).use { response ->
                 val entity = response.entity
                 val result = EntityUtils.toString(entity)
-                val decodeFromString = Json.decodeFromString<WeatherResponse>(result)
+                val todayWeather = Json.decodeFromString<WeatherResponse>(result)
 
-                return decodeFromString
+                val items = todayWeather.response.body.items
+                items.item.map {weather ->
+                    if(weather.category == "T1H"){
+                        weather.category = "기온"
+                    }
+                    if(weather.category == "PTY"){
+                        weather.category = "강수형태"
+                        weather.obsrValue = PrecipitationType.fromCode(weather.obsrValue.toInt()).description
+                    }
+
+                }
+
+                return todayWeather
             }
         }
     }

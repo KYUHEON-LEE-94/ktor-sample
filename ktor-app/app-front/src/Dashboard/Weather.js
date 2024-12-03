@@ -54,7 +54,7 @@ function Weather() {
                     const response = await axios.get(`http://localhost:8081/weather?nx=${nx}&ny=${ny}&base_date=${locationData.baseDate}&base_time=${locationData.basetime}`);
 
                     setWeatherData(response.data); // 응답 데이터를 상태에 저장
-                    console.log(response.data)
+                    
                 } catch (error) {
                     console.error('날씨 데이터를 가져오는 데 오류가 발생했습니다:', error);
                 }
@@ -70,7 +70,7 @@ function Weather() {
             if (locationData) {
                 try {
                     const response = await axios.get(`https://nominatim.openstreetmap.org/reverse?lat=${locationData.nx}&lon=${locationData.ny}&format=json`);
-                    console.log(response.data)
+                    // console.log(response.data)
 
                     setLocationInfo(response.data.address)
                 } catch (error) {
@@ -84,13 +84,28 @@ function Weather() {
 
     return (
         <div>
-            {/* 날씨 정보를 여기에 추가하세요 */}
-            <h3>날씨 정보</h3>
             {locationInfo && locationInfo.city && locationInfo.road && ( // locationInfo가 null이 아닐 때만 렌더링
-                <div>
-                    <p>현재 위치: {locationInfo.city}, {locationInfo.road}</p> {/* 도시와 도로 출력 */}
+                <div className="text-right text-gray-500 text-sm">
+                    <p>{locationInfo.city}, {locationInfo.road}</p>
                 </div>
             )}
+            <h3>날씨 정보</h3>
+            
+            
+            
+            {/* {
+                 weatherData.response.body.items.forEach(weather =>{
+                    if(weather.category === "강수형태"){
+                        <div>
+                            {weather.obsrValue}
+                        </div>
+                    }
+                 }
+
+                 )
+            }  */}
+            
+
             
         </div>
     );

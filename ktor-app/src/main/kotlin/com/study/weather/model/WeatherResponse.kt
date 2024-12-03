@@ -48,7 +48,7 @@ data class Items(
 data class WeatherItem(
     val baseDate:String = "",
     val baseTime:String = "",
-    val category: String= "",
+    var category: String= "",
     var nx:Int = 0,
     var ny:Int = 0,
     var obsrValue:String = ""
