@@ -16,8 +16,8 @@ fun Application.weatherRouting(weatherService: WeatherService) {
         staticResources("/static", "static")
 
         get("/weather") {
-            val nx = call.request.queryParameters["nx"]?.toInt() ?: throw IllegalArgumentException("Parameter 'nx' is required and must be an integer.")
-            val ny = call.request.queryParameters["ny"]?.toInt() ?: throw IllegalArgumentException("Parameter 'ny' is required and must be an integer.")
+            val nx = call.request.queryParameters["nx"]?.toDouble() ?: throw IllegalArgumentException("Parameter 'nx' is required and must be an integer.")
+            val ny = call.request.queryParameters["ny"]?.toDouble() ?: throw IllegalArgumentException("Parameter 'ny' is required and must be an integer.")
             val baseTime = call.request.queryParameters["base_time"] ?: getCurrentDateFormatted()
             val baseDate = call.request.queryParameters["base_date"] ?: getCurrentTimeFormatted()
 

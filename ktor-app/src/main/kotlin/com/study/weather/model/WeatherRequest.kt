@@ -29,6 +29,6 @@ data class WeatherRequest(
     val dataType: String = "json",
     var baseDate:String = getCurrentDateFormatted(),
     var basetime:String = getCurrentTimeFormatted(),
-    var nx:Int = 0,
-    var ny:Int = 0
+    var nx:Double = 0.0,
+    var ny:Double = 0.0
     )

@@ -10,14 +10,12 @@ import io.kotest.matchers.shouldBe
 class WeatherTest: StringSpec ({
     "Weather 기본 적인 Get 테스트" {
             val request = WeatherRequest()
-            request.nx = 55
-            request.ny = 127
+            request.nx = 37.5399238
+            request.ny = 127.0507572
 
         val service = WeatherService()
 
         val todayWeather = service.getTodayWeather(request)
-
-        println(todayWeather)
 
         todayWeather.response.header.resultCode shouldBe "00"
     }

@@ -1,5 +1,6 @@
 package com.study.weather.service
 
+import com.study.util.GpsTransfer
 import com.study.weather.model.PrecipitationType
 import com.study.weather.model.WeatherRequest
 import com.study.weather.model.WeatherResponse
@@ -27,7 +28,12 @@ import org.apache.http.util.EntityUtils
 
 class WeatherService {
     fun getTodayWeather(request:WeatherRequest): WeatherResponse {
-      val url = getUrl(request)
+        val gps = GpsTransfer(request.nx, request.ny) // 위도, 경도
+        gps.transfer(gps, 0) // 위경도 -> x, y 좌표
+        request.nx = gps.xLat
+        request.ny = gps.yLon
+
+        val url = getUrl(request)
         println("WeatherRequest : $url")
         return getResponse(url)
 
@@ -41,8 +47,8 @@ class WeatherService {
                 "&dataType=${request.dataType}" +
                 "&base_date=${request.baseDate}" +
                 "&base_time=${request.basetime}" +
-                "&nx=${request.nx}" +
-                "&ny=${request.ny}"
+                "&nx=${request.nx.toInt()}" +
+                "&ny=${request.ny.toInt()}"
     }
 
     private fun getResponse(url:String):WeatherResponse {
@@ -66,6 +72,7 @@ class WeatherService {
                     }
 
                 }
+                println(todayWeather)
 
                 return todayWeather
             }

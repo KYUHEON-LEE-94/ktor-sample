@@ -49,8 +49,8 @@ function Weather() {
         const fetchWeather = async () => {
             if (locationData) {
                 try {
-                    let nx = Math.floor(locationData.nx)
-                    let ny = Math.floor(locationData.ny)
+                    let nx = locationData.nx
+                    let ny = locationData.ny
                     const response = await axios.get(`http://localhost:8081/weather?nx=${nx}&ny=${ny}&base_date=${locationData.baseDate}&base_time=${locationData.basetime}`);
 
                     setWeatherData(response.data); // 응답 데이터를 상태에 저장
@@ -84,29 +84,25 @@ function Weather() {
 
     return (
         <div>
-            {locationInfo && locationInfo.city && locationInfo.road && ( // locationInfo가 null이 아닐 때만 렌더링
-                <div className="text-right text-gray-500 text-sm">
-                    <p>{locationInfo.city}, {locationInfo.road}</p>
+            {locationInfo && locationInfo?.city && locationInfo?.road && ( // locationInfo가 null이 아닐 때만 렌더링
+                <div className="text-right text-gray-500 text-sm"> {/* Tailwind CSS 클래스 추가 */}
+                    <p>[{locationInfo.country}] {locationInfo.city}, {locationInfo.road}</p> {/* 도시와 도로 출력 */}
                 </div>
             )}
-            <h3>날씨 정보</h3>
-            
-            
-            
-            {/* {
-                 weatherData.response.body.items.forEach(weather =>{
-                    if(weather.category === "강수형태"){
-                        <div>
-                            {weather.obsrValue}
-                        </div>
-                    }
-                 }
 
-                 )
-            }  */}
-            
-
-            
+        {
+        
+        weatherData?.response?.body?.items?.item?.map((weather) => {
+            console.log(weatherData)
+            if (weather.category === "강수형태") {
+                return <div key={`강수-${weather.obsrValue}`}>강수형태: {weather.obsrValue}</div>;
+            }
+            if (weather.category === "기온") {
+                return <div key={`기온-${weather.obsrValue}`}>기온: {weather.obsrValue}°C</div>;
+            }
+            return null; // 조건에 맞지 않는 경우 렌더링하지 않음
+        })
+        }
         </div>
     );
 }
