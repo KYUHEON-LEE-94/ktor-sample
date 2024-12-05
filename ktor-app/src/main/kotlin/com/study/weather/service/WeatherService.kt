@@ -45,13 +45,14 @@ class WeatherService {
 
         var todayWeather = getResponse(url)
 
-        if (todayWeather.response.header.resultCode == NO_DATA) {
+        var resultCode = todayWeather.response.header.resultCode;
+        if (resultCode == NO_DATA) {
             for (i in 1L..MAX_RETRY) {
                 val retryRequest = updatedRequest.copy(basetime = getCurrentTimeFormatted(i))
                 url = getUrl(retryRequest)
                 todayWeather = getResponse(url)
-
-                if (todayWeather.response.header.resultCode != NO_DATA) {
+                resultCode = todayWeather.response.header.resultCode;
+                if (resultCode != NO_DATA) {
                     return todayWeather
                 }
             }

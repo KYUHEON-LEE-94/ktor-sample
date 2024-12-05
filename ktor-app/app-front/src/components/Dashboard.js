@@ -1,5 +1,5 @@
 import React from 'react';
-import { Waves, BarChart2, Clock, PieChart } from 'lucide-react';
+import { Waves, CheckCheck, Clock, PieChart } from 'lucide-react';
 import Weather from '../Dashboard/Weather';
 
 function Dashboard() {
@@ -25,11 +25,11 @@ function Dashboard() {
                     
                     <div className={`${smallCardStyle}`}>
                         <div className="flex justify-between items-center mb-4">
-                            <BarChart2 className="w-8 h-8 text-green-500" />
-                            <span className="text-gray-500 text-sm">통계</span>
+                            <CheckCheck className="w-8 h-8 text-green-500" />
+                            <span className="text-gray-500 text-sm">공지</span>
                         </div>
                         <div className="text-center">
-                            <p className="text-xl font-bold text-gray-700">데이터</p>
+                            <p className="text-xl font-bold text-gray-700">공지사항</p>
                             <p className="text-sm text-gray-500">준비 중</p>
                         </div>
                     </div>
@@ -60,7 +60,7 @@ function Dashboard() {
                 <div className="grid grid-cols-2 gap-8">
                     <div className={`${largeCardStyle}`}>
                         <div className="flex items-center space-x-4 border-b pb-4">
-                            <BarChart2 className="w-8 h-8 text-indigo-600" />
+                            <CheckCheck className="w-8 h-8 text-indigo-600" />
                             <h3 className="text-xl font-semibold text-gray-800">상세 분석</h3>
                         </div>
                         <p className="text-gray-600">데이터 분석 내용이 여기에 표시됩니다.</p>
