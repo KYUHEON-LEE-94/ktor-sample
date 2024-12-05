@@ -32,9 +32,9 @@ fun getCurrentDateFormatted(): String {
 /**
  * 초단기 시간을 보여주기 때문에 현재 시간 -2의 데이터를 가져와야함
  * **/
-fun getCurrentTimeFormatted(): String {
+fun getCurrentTimeFormatted(minusTime:Long = 0): String {
     val currentTime = LocalTime.now()
-        .minusHours(2)
+        .minusHours(minusTime)
         .withMinute(0)
         .withSecond(0)
     val formatter = DateTimeFormatter.ofPattern("HHmm")

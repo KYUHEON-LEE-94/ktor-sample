@@ -1,6 +1,7 @@
 package com.study.weather.service
 
 import com.study.util.GpsTransfer
+import com.study.util.getCurrentTimeFormatted
 import com.study.weather.model.PrecipitationType
 import com.study.weather.model.WeatherRequest
 import com.study.weather.model.WeatherResponse
@@ -27,16 +28,37 @@ import org.apache.http.util.EntityUtils
  */
 
 class WeatherService {
+
+    private val NO_DATA = "03"
+    private val NORMAL_SERVICE = "00"
+    private val MAX_RETRY = 3L
+
     fun getTodayWeather(request:WeatherRequest): WeatherResponse {
-        val gps = GpsTransfer(request.nx, request.ny) // 위도, 경도
-        gps.transfer(gps, 0) // 위경도 -> x, y 좌표
-        request.nx = gps.xLat
-        request.ny = gps.yLon
+        val gps = GpsTransfer(request.nx, request.ny).apply {
+            transfer(this, 0) // 위경도 -> x, y 좌표
+        }
 
-        val url = getUrl(request)
+        val updatedRequest = request.copy(nx = gps.xLat, ny = gps.yLon)
+
+        var url = getUrl(updatedRequest)
         println("WeatherRequest : $url")
-        return getResponse(url)
 
+        var todayWeather = getResponse(url)
+
+        if (todayWeather.response.header.resultCode == NO_DATA) {
+            for (i in 1L..MAX_RETRY) {
+                val retryRequest = updatedRequest.copy(basetime = getCurrentTimeFormatted(i))
+                url = getUrl(retryRequest)
+                todayWeather = getResponse(url)
+
+                if (todayWeather.response.header.resultCode != NO_DATA) {
+                    return todayWeather
+                }
+            }
+            throw IllegalStateException("Failed to fetch weather data after $MAX_RETRY attempts")
+        }else{
+            return todayWeather
+        }
     }
 
     private fun getUrl(request:WeatherRequest):String{
@@ -72,7 +94,8 @@ class WeatherService {
                     }
 
                 }
-                println(todayWeather)
+
+                println("getResponse $todayWeather")
 
                 return todayWeather
             }
