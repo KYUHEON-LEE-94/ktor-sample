@@ -1,28 +1,82 @@
 import React from 'react';
+import { Waves, BarChart2, Clock, PieChart } from 'lucide-react';
 import Weather from '../Dashboard/Weather';
 
 function Dashboard() {
+    const smallCardStyle = "bg-white p-6 shadow-md rounded-lg transition-all duration-300 hover:shadow-xl hover:scale-105 flex flex-col";
+    const largeCardStyle = "bg-white p-8 shadow-lg rounded-lg space-y-4";
+
     return (
-      <div className="dashboard-content w-4/5 mx-auto p-4">
-        <h2 className="text-2xl font-bold mb-4">대시보드 내용</h2>
-        {/* 여기에 대시보드 관련 내용을 추가하세요 */}
-        <div className="flex flex-row gap-6 mb-6">
-          {/* 작은 카드 4개 */}
-          <div className="card small-card bg-white p-6 shadow rounded w-1/4">
-            <Weather />
-          </div>
-          
-          <div className="card small-card bg-white p-6 shadow rounded w-1/4">작은 카드 2</div>
-          <div className="card small-card bg-white p-6 shadow rounded w-1/4">작은 카드 3</div>
-          <div className="card small-card bg-white p-6 shadow rounded w-1/4">작은 카드 4</div>
+        <div className="bg-gray-50 min-h-screen py-10">
+            <div className="dashboard-content w-11/12 max-w-7xl mx-auto">
+                <div className="flex items-center mb-8">
+                    <h2 className="text-3xl font-bold text-gray-800 mr-4">대시보드</h2>
+                    <span className="text-sm text-gray-500">오늘의 요약</span>
+                </div>
+
+                <div className="grid grid-cols-4 gap-6 mb-8">
+                    <div className={`${smallCardStyle}`}>
+                        <div className="flex justify-between items-center mb-4">
+                            <Waves className="w-8 h-8 text-blue-500" />
+                            <span className="text-gray-500 text-sm">날씨</span>
+                        </div>
+                        <Weather />
+                    </div>
+                    
+                    <div className={`${smallCardStyle}`}>
+                        <div className="flex justify-between items-center mb-4">
+                            <BarChart2 className="w-8 h-8 text-green-500" />
+                            <span className="text-gray-500 text-sm">통계</span>
+                        </div>
+                        <div className="text-center">
+                            <p className="text-xl font-bold text-gray-700">데이터</p>
+                            <p className="text-sm text-gray-500">준비 중</p>
+                        </div>
+                    </div>
+                    
+                    <div className={`${smallCardStyle}`}>
+                        <div className="flex justify-between items-center mb-4">
+                            <Clock className="w-8 h-8 text-purple-500" />
+                            <span className="text-gray-500 text-sm">시간</span>
+                        </div>
+                        <div className="text-center">
+                            <p className="text-xl font-bold text-gray-700">현재 시간</p>
+                            <p className="text-sm text-gray-500">{new Date().toLocaleTimeString()}</p>
+                        </div>
+                    </div>
+                    
+                    <div className={`${smallCardStyle}`}>
+                        <div className="flex justify-between items-center mb-4">
+                            <PieChart className="w-8 h-8 text-red-500" />
+                            <span className="text-gray-500 text-sm">요약</span>
+                        </div>
+                        <div className="text-center">
+                            <p className="text-xl font-bold text-gray-700">총계</p>
+                            <p className="text-sm text-gray-500">준비 중</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-8">
+                    <div className={`${largeCardStyle}`}>
+                        <div className="flex items-center space-x-4 border-b pb-4">
+                            <BarChart2 className="w-8 h-8 text-indigo-600" />
+                            <h3 className="text-xl font-semibold text-gray-800">상세 분석</h3>
+                        </div>
+                        <p className="text-gray-600">데이터 분석 내용이 여기에 표시됩니다.</p>
+                    </div>
+                    
+                    <div className={`${largeCardStyle}`}>
+                        <div className="flex items-center space-x-4 border-b pb-4">
+                            <PieChart className="w-8 h-8 text-teal-600" />
+                            <h3 className="text-xl font-semibold text-gray-800">종합 보고서</h3>
+                        </div>
+                        <p className="text-gray-600">종합 보고서 내용이 여기에 표시됩니다.</p>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div className="grid grid-cols-1 gap-6">
-          {/* 큰 카드 2개 */}
-          <div className="card large-card bg-white p-8 shadow-lg rounded">큰 카드 1</div>
-          <div className="card large-card bg-white p-8 shadow-lg rounded">큰 카드 2</div>
-        </div>
-      </div>
     );
-  }
+}
 
 export default Dashboard;
