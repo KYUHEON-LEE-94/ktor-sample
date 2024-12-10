@@ -4,74 +4,62 @@ import ReactQuill, { Quill } from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 
 import { 
+    Save,
     Trash2, 
     PlusCircle, 
-    Save, 
     X, 
     Search 
 } from 'lucide-react';
 
-const formats = [
-    'font',
-    'header',
-    'bold',
-    'italic',
-    'underline',
-    'strike',
-    'blockquote',
-    'list',
-    'bullet',
-    'indent',
-    'link',
-    'align',
-    'color',
-    'background',
-    'size',
-    'h1',
-  ];
+
 
 function NoticeBoardPage() {
 
     const [values, setValues] = useState();
   
+
+    const formats = [
+        'header',
+        'bold', 'italic', 'underline', 'strike',
+        'list', 'bullet',
+        'code-block', // code-block 포맷 추가
+        'link', 'image'
+    ];
+
     const modules = useMemo(() => {
        return {
-         toolbar: {
-           container: [
-             [{ size: ['small', false, 'large', 'huge'] }],
-             [{ align: [] }],
-             ['bold', 'italic', 'underline', 'strike'],
-             [{ list: 'ordered' }, { list: 'bullet' }],
-             [
-               {
-                 color: [],
-               },
-               { background: [] },
-             ],
-           ],
-         },
+        toolbar: [
+            [{ header: [1, 2, 3, false] }],
+            ['bold', 'italic', 'underline', 'strike'],
+            [{ list: 'ordered' }, { list: 'bullet' }],
+            ['code-block'], // code-block 버튼 추가
+            ['link', 'image'],
+            ['clean']
+        ],
        };
      }, []);
 
     const location = useLocation();
     const noticeId = location.state.noticeId;
 
-    const [notices, setNotices] = useState([
-        { 
-            id: 1, 
-            title: '시스템 점검 안내', 
-            content: '오는 토요일 새벽 2시부터 4시까지 시스템 점검이 예정되어 있습니다.', 
-            author: '관리자', 
-            date: '2024-02-15' 
-        },
-        { 
-            id: 2, 
-            title: '새로운 기능 업데이트', 
-            content: '대시보드에 새로운 분석 기능이 추가되었습니다.', 
-            author: '관리자', 
-            date: '2024-02-10' 
-        },
-    ]);
+    // const [notices, setNotices] = useState([
+    //     { 
+    //         id: 1, 
+    //         title: '시스템 점검 안내', 
+    //         content: '오는 토요일 새벽 2시부터 4시까지 시스템 점검이 예정되어 있습니다.', 
+    //         author: '관리자', 
+    //         date: '2024-02-15' 
+    //     },
+    //     { 
+    //         id: 2, 
+    //         title: '새로운 기능 업데이트', 
+    //         content: '대시보드에 새로운 분석 기능이 추가되었습니다.', 
+    //         author: '관리자', 
+    //         date: '2024-02-10' 
+    //     },
+    // ]);
+
+    const [notices, setNotices] = useState();
 
     const [selectedNotice, setSelectedNotice] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
@@ -80,7 +68,7 @@ function NoticeBoardPage() {
 
     // URL에서 전달된 noticeId로 공지사항 선택
     useEffect(() => {
-        if (noticeId) {
+        if (noticeId && notices) {
             const notice = notices.find(n => n.id === parseInt(noticeId));
             if (notice) {
                 setSelectedNotice(notice);
@@ -89,9 +77,16 @@ function NoticeBoardPage() {
         }
     }, [noticeId, notices]);
 
+
     const handleCreate = () => {
+        let id = 0;
+        if (!notices || notices.length === 0) {
+            id = 1; // notices가 비어있거나 undefined일 경우 id를 1로 설정
+        } else {
+            id = notices.length + 1; // notices가 존재할 경우 id를 notices의 길이 + 1로 설정
+        }
         const newNotice = {
-            id: notices.length + 1,
+            id: id,
             title: '',
             content: '',
             author: '관리자',
@@ -125,9 +120,9 @@ function NoticeBoardPage() {
     };
 
 
-    const filteredNotices = notices.filter(notice => 
-        notice.title.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filteredNotices = notices ? notices.filter(notice => 
+        notice.title.toLowerCase().includes(searchTerm?.toLowerCase() || '')
+    ) : [];
 
     return (
         <div className="container mx-auto px-4 py-8 bg-gray-50 min-h-screen">
@@ -183,18 +178,11 @@ function NoticeBoardPage() {
                         <div>
                             {isCreating ? (
                                 <>
-                                    <input 
-                                        type="text" 
-                                        value={selectedNotice.title}
-                                        onChange={(e) => setSelectedNotice({...selectedNotice, title: e.target.value})}
-                                        placeholder="제목을 입력하세요"
-                                        className="w-full border-b mb-4 text-xl font-bold focus:outline-none"
-                                    />
-                                    <textarea 
-                                        value={selectedNotice.content}
-                                        onChange={(e) => setSelectedNotice({...selectedNotice, content: e.target.value})}
-                                        placeholder="내용을 입력하세요"
-                                        className="w-full border rounded-lg p-3 h-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    <ReactQuill
+                                        theme="snow"
+                                        modules={modules}
+                                        formats={formats}
+                                        onChange={setValues}
                                     />
                                     <div className="flex justify-end space-x-2 mt-4">
                                         <button 
@@ -219,6 +207,13 @@ function NoticeBoardPage() {
                                     <div className="flex justify-between items-center mb-6">
                                         <h2 className="text-2xl font-bold">{selectedNotice.title}</h2>
                                         <div className="flex space-x-2">
+                                        <button 
+                                                onClick={() => handleSave(selectedNotice)}
+                                                className="text-blue-500 hover:bg-blue-50 p-2 rounded-full"
+                                                id='modifyButton'
+                                            >
+                                                <Save />
+                                            </button>
                                             <button 
                                                 onClick={() => handleDelete(selectedNotice.id)}
                                                 className="text-red-500 hover:bg-red-50 p-2 rounded-full"
@@ -248,7 +243,8 @@ function NoticeBoardPage() {
                         <div className="text-center text-gray-500 py-16">
                             공지사항을 선택해주세요
                         </div>
-                    )}
+                    )
+                    }
                 </div>
             </div>
         </div>
