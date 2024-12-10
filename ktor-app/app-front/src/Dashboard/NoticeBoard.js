@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useLocation , useNavigate } from 'react-router-dom';
+
 import { 
     Edit2, 
     Trash2, 
@@ -9,6 +11,12 @@ import {
 } from 'lucide-react';
 
 function NoticeBoardPage() {
+    const location = useLocation();
+    const noticeId = location.state.noticeId;
+    console.log(noticeId)
+
+    const navigate = useNavigate();
+
     const [notices, setNotices] = useState([
         { 
             id: 1, 
@@ -31,6 +39,18 @@ function NoticeBoardPage() {
     const [isCreating, setIsCreating] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
 
+    // URL에서 전달된 noticeId로 공지사항 선택
+    useEffect(() => {
+        if (noticeId) {
+            const notice = notices.find(n => n.id === parseInt(noticeId));
+            if (notice) {
+                setSelectedNotice(notice);
+                setIsEditing(false);
+                setIsCreating(false);
+            } 
+        }
+    }, [noticeId, notices, navigate]);
+
     const handleCreate = () => {
         const newNotice = {
             id: notices.length + 1,
@@ -45,21 +65,27 @@ function NoticeBoardPage() {
 
     const handleSave = () => {
         if (isCreating) {
-            setNotices([...notices, selectedNotice]);
+            const newNotice = {...selectedNotice, id: notices.length + 1};
+            setNotices([...notices, newNotice]);
+            // 새로 생성된 공지사항으로 리다이렉트
+            navigate(`/notices/${newNotice.id}`);
             setIsCreating(false);
-            setSelectedNotice(null);
+            setSelectedNotice(newNotice);
         } else {
             const updatedNotices = notices.map(notice => 
                 notice.id === selectedNotice.id ? selectedNotice : notice
             );
             setNotices(updatedNotices);
             setIsEditing(false);
-            setSelectedNotice(null);
+            setSelectedNotice(selectedNotice);
         }
     };
 
     const handleDelete = (id) => {
-        setNotices(notices.filter(notice => notice.id !== id));
+        const updatedNotices = notices.filter(notice => notice.id !== id);
+        setNotices(updatedNotices);
+        // 삭제 후 목록 페이지로 리다이렉트
+        navigate('/notices');
         setSelectedNotice(null);
         setIsEditing(false);
     };
@@ -106,9 +132,7 @@ function NoticeBoardPage() {
                                 key={notice.id} 
                                 className={`p-4 hover:bg-gray-100 cursor-pointer ${selectedNotice?.id === notice.id ? 'bg-blue-50' : ''}`}
                                 onClick={() => {
-                                    setSelectedNotice(notice);
-                                    setIsEditing(false);
-                                    setIsCreating(false);
+                                    navigate(`/notices/${notice.id}`);
                                 }}
                             >
                                 <div className="flex justify-between items-center">
@@ -151,7 +175,11 @@ function NoticeBoardPage() {
                                             onClick={() => {
                                                 setIsEditing(false);
                                                 setIsCreating(false);
-                                                setSelectedNotice(null);
+                                                if (noticeId) {
+                                                    navigate(`/notices/${noticeId}`);
+                                                } else {
+                                                    setSelectedNotice(null);
+                                                }
                                             }}
                                             className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 flex items-center"
                                         >
@@ -198,5 +226,6 @@ function NoticeBoardPage() {
         </div>
     );
 }
+
 
 export default NoticeBoardPage;
