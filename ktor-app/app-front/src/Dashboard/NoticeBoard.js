@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { useLocation , useNavigate } from 'react-router-dom';
+import React, { useMemo, useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
+import ReactQuill, { Quill } from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 import { 
-    Edit2, 
     Trash2, 
     PlusCircle, 
     Save, 
@@ -10,12 +11,50 @@ import {
     Search 
 } from 'lucide-react';
 
+const formats = [
+    'font',
+    'header',
+    'bold',
+    'italic',
+    'underline',
+    'strike',
+    'blockquote',
+    'list',
+    'bullet',
+    'indent',
+    'link',
+    'align',
+    'color',
+    'background',
+    'size',
+    'h1',
+  ];
+
 function NoticeBoardPage() {
+
+    const [values, setValues] = useState();
+  
+    const modules = useMemo(() => {
+       return {
+         toolbar: {
+           container: [
+             [{ size: ['small', false, 'large', 'huge'] }],
+             [{ align: [] }],
+             ['bold', 'italic', 'underline', 'strike'],
+             [{ list: 'ordered' }, { list: 'bullet' }],
+             [
+               {
+                 color: [],
+               },
+               { background: [] },
+             ],
+           ],
+         },
+       };
+     }, []);
+
     const location = useLocation();
     const noticeId = location.state.noticeId;
-    console.log(noticeId)
-
-    const navigate = useNavigate();
 
     const [notices, setNotices] = useState([
         { 
@@ -45,11 +84,10 @@ function NoticeBoardPage() {
             const notice = notices.find(n => n.id === parseInt(noticeId));
             if (notice) {
                 setSelectedNotice(notice);
-                setIsEditing(false);
                 setIsCreating(false);
             } 
         }
-    }, [noticeId, notices, navigate]);
+    }, [noticeId, notices]);
 
     const handleCreate = () => {
         const newNotice = {
@@ -67,8 +105,7 @@ function NoticeBoardPage() {
         if (isCreating) {
             const newNotice = {...selectedNotice, id: notices.length + 1};
             setNotices([...notices, newNotice]);
-            // 새로 생성된 공지사항으로 리다이렉트
-            navigate(`/notices/${newNotice.id}`);
+
             setIsCreating(false);
             setSelectedNotice(newNotice);
         } else {
@@ -76,7 +113,6 @@ function NoticeBoardPage() {
                 notice.id === selectedNotice.id ? selectedNotice : notice
             );
             setNotices(updatedNotices);
-            setIsEditing(false);
             setSelectedNotice(selectedNotice);
         }
     };
@@ -84,16 +120,10 @@ function NoticeBoardPage() {
     const handleDelete = (id) => {
         const updatedNotices = notices.filter(notice => notice.id !== id);
         setNotices(updatedNotices);
-        // 삭제 후 목록 페이지로 리다이렉트
-        navigate('/notices');
+
         setSelectedNotice(null);
-        setIsEditing(false);
     };
 
-    const handleEdit = (notice) => {
-        setSelectedNotice({...notice});
-        setIsEditing(true);
-    };
 
     const filteredNotices = notices.filter(notice => 
         notice.title.toLowerCase().includes(searchTerm.toLowerCase())
@@ -132,7 +162,9 @@ function NoticeBoardPage() {
                                 key={notice.id} 
                                 className={`p-4 hover:bg-gray-100 cursor-pointer ${selectedNotice?.id === notice.id ? 'bg-blue-50' : ''}`}
                                 onClick={() => {
-                                    navigate(`/notices/${notice.id}`);
+                                    //클릭한 게시글의 속성 변경
+                                    setSelectedNotice(notice);
+                                    setIsCreating(false);
                                 }}
                             >
                                 <div className="flex justify-between items-center">
@@ -149,7 +181,7 @@ function NoticeBoardPage() {
                 <div className="col-span-2 bg-white shadow-md rounded-lg p-6">
                     {selectedNotice ? (
                         <div>
-                            {isEditing || isCreating ? (
+                            {isCreating ? (
                                 <>
                                     <input 
                                         type="text" 
@@ -173,13 +205,8 @@ function NoticeBoardPage() {
                                         </button>
                                         <button 
                                             onClick={() => {
-                                                setIsEditing(false);
                                                 setIsCreating(false);
-                                                if (noticeId) {
-                                                    navigate(`/notices/${noticeId}`);
-                                                } else {
-                                                    setSelectedNotice(null);
-                                                }
+                                                setSelectedNotice(null);
                                             }}
                                             className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 flex items-center"
                                         >
@@ -193,12 +220,6 @@ function NoticeBoardPage() {
                                         <h2 className="text-2xl font-bold">{selectedNotice.title}</h2>
                                         <div className="flex space-x-2">
                                             <button 
-                                                onClick={() => handleEdit(selectedNotice)}
-                                                className="text-blue-500 hover:bg-blue-50 p-2 rounded-full"
-                                            >
-                                                <Edit2 />
-                                            </button>
-                                            <button 
                                                 onClick={() => handleDelete(selectedNotice.id)}
                                                 className="text-red-500 hover:bg-red-50 p-2 rounded-full"
                                             >
@@ -206,9 +227,16 @@ function NoticeBoardPage() {
                                             </button>
                                         </div>
                                     </div>
-                                    <div className="text-gray-700">
-                                        <p className="whitespace-pre-line">{selectedNotice.content}</p>
-                                    </div>
+
+                                    <ReactQuill
+                                        theme="snow"
+                                        modules={modules}
+                                        formats={formats}
+                                        value={selectedNotice.content}
+                                        onChange={setValues}
+                                    />
+
+
                                     <div className="mt-4 text-sm text-gray-500">
                                         <span>작성자: {selectedNotice.author}</span>
                                         <span className="ml-4">작성일: {selectedNotice.date}</span>
