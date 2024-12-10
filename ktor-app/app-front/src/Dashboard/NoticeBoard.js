@@ -15,7 +15,7 @@ import {
 
 function NoticeBoardPage() {
 
-    const [values, setValues] = useState();
+    const [contents, setContents] = useState();
   
 
     const formats = [
@@ -42,27 +42,26 @@ function NoticeBoardPage() {
     const location = useLocation();
     const noticeId = location.state.noticeId;
 
-    // const [notices, setNotices] = useState([
-    //     { 
-    //         id: 1, 
-    //         title: '시스템 점검 안내', 
-    //         content: '오는 토요일 새벽 2시부터 4시까지 시스템 점검이 예정되어 있습니다.', 
-    //         author: '관리자', 
-    //         date: '2024-02-15' 
-    //     },
-    //     { 
-    //         id: 2, 
-    //         title: '새로운 기능 업데이트', 
-    //         content: '대시보드에 새로운 분석 기능이 추가되었습니다.', 
-    //         author: '관리자', 
-    //         date: '2024-02-10' 
-    //     },
-    // ]);
+    const [notices, setNotices] = useState([
+        { 
+            id: 1, 
+            title: '시스템 점검 안내', 
+            content: '오는 토요일 새벽 2시부터 4시까지 시스템 점검이 예정되어 있습니다.', 
+            author: '관리자', 
+            date: '2024-02-15' 
+        },
+        { 
+            id: 2, 
+            title: '새로운 기능 업데이트', 
+            content: '대시보드에 새로운 분석 기능이 추가되었습니다.', 
+            author: '관리자', 
+            date: '2024-02-10' 
+        },
+    ]);
 
-    const [notices, setNotices] = useState();
+    //const [notices, setNotices] = useState();
 
     const [selectedNotice, setSelectedNotice] = useState(null);
-    const [isEditing, setIsEditing] = useState(false);
     const [isCreating, setIsCreating] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
 
@@ -97,8 +96,17 @@ function NoticeBoardPage() {
     };
 
     const handleSave = () => {
+        console.log(contents);
+        let id = 0;
+        if (!notices || notices.length === 0) {
+            id = 1;
+        } else {
+            id = notices.length + 1; 
+        }
+
         if (isCreating) {
-            const newNotice = {...selectedNotice, id: notices.length + 1};
+
+            const newNotice = {...selectedNotice, id: id};
             setNotices([...notices, newNotice]);
 
             setIsCreating(false);
@@ -178,11 +186,15 @@ function NoticeBoardPage() {
                         <div>
                             {isCreating ? (
                                 <>
+                                <div class="flex justify-between items-center mb-6">
+                                    <input className="text-2xl font-bold w-full" placeholder='제목을 입력해주세요'/>
+                                </div>
+                                
                                     <ReactQuill
                                         theme="snow"
                                         modules={modules}
                                         formats={formats}
-                                        onChange={setValues}
+                                        onChange={setContents}
                                     />
                                     <div className="flex justify-end space-x-2 mt-4">
                                         <button 
@@ -228,7 +240,7 @@ function NoticeBoardPage() {
                                         modules={modules}
                                         formats={formats}
                                         value={selectedNotice.content}
-                                        onChange={setValues}
+                                        onChange={setContents}
                                     />
 
 
