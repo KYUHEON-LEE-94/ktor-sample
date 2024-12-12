@@ -96,7 +96,7 @@ function NoticeBoardPage() {
     };
 
     const handleSave = () => {
-        console.log(contents);
+ 
         let id = 0;
         if (!notices || notices.length === 0) {
             id = 1;
@@ -171,6 +171,7 @@ function NoticeBoardPage() {
                                 }}
                             >
                                 <div className="flex justify-between items-center">
+                                    
                                     <h3 className="font-semibold text-gray-800 truncate">{notice.title}</h3>
                                     <span className="text-sm text-gray-500">{notice.date}</span>
                                 </div>
@@ -217,7 +218,7 @@ function NoticeBoardPage() {
                             ) : (
                                 <>
                                     <div className="flex justify-between items-center mb-6">
-                                        <h2 className="text-2xl font-bold">{selectedNotice.title}</h2>
+                                    <input className="text-2xl font-bold w-full" value={selectedNotice.title} />
                                         <div className="flex space-x-2">
                                         <button 
                                                 onClick={() => handleSave(selectedNotice)}

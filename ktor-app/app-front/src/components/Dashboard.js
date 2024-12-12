@@ -3,6 +3,10 @@ import { Link } from 'react-router-dom'; // Link 임포트
 import { Waves, CheckCheck, Clock, PieChart } from 'lucide-react';
 import Weather from '../Dashboard/Weather';
 
+/**
+ *  무언가 작성하거나, 수정되면 Slack으로 보내기
+ * 
+ * **/
 function Dashboard() {
 
     // Axios로 가져와야함
@@ -91,9 +95,9 @@ function Dashboard() {
                     <div className={`${largeCardStyle}`}>
                         <div className="flex items-center space-x-4 border-b pb-4">
                             <CheckCheck className="w-6 sm:w-8 h-6 sm:h-8 text-indigo-600" />
-                            <h3 className="text-lg sm:text-xl font-semibold text-gray-800">상세 분석</h3>
+                            <h3 className="text-lg sm:text-xl font-semibold text-gray-800">주요 뉴스</h3>
                         </div>
-                        <p className="text-sm sm:text-base text-gray-600">데이터 분석 내용이 여기에 표시됩니다.</p>
+                        <p className="text-sm sm:text-base text-gray-600">웹크롤링해서 신문사 4개정도 (썸네일, 제목, 본문, 날짜)</p>
                     </div>
                     
                     <div className={`${largeCardStyle}`}>
