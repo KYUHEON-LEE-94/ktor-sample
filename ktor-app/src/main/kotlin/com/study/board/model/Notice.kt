@@ -19,4 +19,4 @@ import kotlinx.serialization.Serializable
  * <pre>
  */
 @Serializable
-data class Notice(var id: String, var title: String, var contents: String, var author: String, var date: String)
+data class Notice(var id: String ="", var title: String = "", var contents: String = "", var author: String = "", var date: String = "")
