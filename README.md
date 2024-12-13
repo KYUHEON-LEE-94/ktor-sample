@@ -16,10 +16,11 @@
 ### 기술 스택
 - React
 - kotlin
+- ktor
 ### 목표
-- 사용자가 자유롭게 움직일 수 있는 Dashboard
-- 계정별로 자신만의 웹페이지를 구성
-- 사용자가 필요로 생각하는 기능들을 설정할 수 있도록 할 것
+- 내가 하고 싶은 기능을 구현
+  - 사용자가 자유롭게 움직일 수 있는 Dashboard
+  - 계정별로 자신만의 웹페이지를 구성
 
 # 출처
 - [ktor io](https://start.ktor.io/settings?name=ktor-sample&website=example.com&artifact=com.example.ktor-sample&kotlinVersion=2.0.20&ktorVersion=3.0.0-rc-2&buildSystem=GRADLE_KTS&engine=NETTY&configurationIn=YAML&addSampleCode=true&plugins=content-negotiation%2Crouting%2Cktor-gson%2Ccall-logging%2Ccallid).
