@@ -1,5 +1,6 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
+import axios from 'axios';
 import ReactQuill, { Quill } from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 
@@ -15,8 +16,9 @@ import {
 
 function NoticeBoardPage() {
 
-    const [contents, setContents] = useState();
-  
+    const [contents, setContents] = useState('');
+    const [newContents, setNewContents] = useState('');
+    const [newTitle, setNewTitle] = useState('');
 
     const formats = [
         'header',
@@ -42,24 +44,24 @@ function NoticeBoardPage() {
     const location = useLocation();
     const noticeId = location.state.noticeId;
 
-    const [notices, setNotices] = useState([
-        { 
-            id: 1, 
-            title: '시스템 점검 안내', 
-            content: '오는 토요일 새벽 2시부터 4시까지 시스템 점검이 예정되어 있습니다.', 
-            author: '관리자', 
-            date: '2024-02-15' 
-        },
-        { 
-            id: 2, 
-            title: '새로운 기능 업데이트', 
-            content: '대시보드에 새로운 분석 기능이 추가되었습니다.', 
-            author: '관리자', 
-            date: '2024-02-10' 
-        },
-    ]);
+    // const [notices, setNotices] = useState([
+    //     { 
+    //         id: 1, 
+    //         title: '시스템 점검 안내', 
+    //         content: '오는 토요일 새벽 2시부터 4시까지 시스템 점검이 예정되어 있습니다.', 
+    //         author: '관리자', 
+    //         date: '2024-02-15' 
+    //     },
+    //     { 
+    //         id: 2, 
+    //         title: '새로운 기능 업데이트', 
+    //         content: '대시보드에 새로운 분석 기능이 추가되었습니다.', 
+    //         author: '관리자', 
+    //         date: '2024-02-10' 
+    //     },
+    // ]);
 
-    //const [notices, setNotices] = useState();
+    const [notices, setNotices] = useState();
 
     const [selectedNotice, setSelectedNotice] = useState(null);
     const [isCreating, setIsCreating] = useState(false);
@@ -77,20 +79,45 @@ function NoticeBoardPage() {
     }, [noticeId, notices]);
 
 
-    const handleCreate = () => {
-        let id = 0;
-        if (!notices || notices.length === 0) {
-            id = 1; // notices가 비어있거나 undefined일 경우 id를 1로 설정
-        } else {
-            id = notices.length + 1; // notices가 존재할 경우 id를 notices의 길이 + 1로 설정
+    const saveRequest = async () => {
+        if (newContents && newTitle) {  // title도 체크
+            try {
+
+                let id = 0;
+                if (!notices || notices.length === 0) {
+                    id = 1;
+                } else {
+                    id = notices.length + 1;
+                }
+
+                const response = await axios.post('http://localhost:8081/api/notices', {
+                    id: id,
+                    title: newTitle,  // newTitle 사용
+                    content: newContents,
+                    author: '관리자',
+                    date: new Date().toISOString().split('T')[0]
+                });
+    
+                console.log(response);
+                if (response.status === 200 || response.status === 201) {
+                    console.log('공지사항이 성공적으로 저장되었습니다.');
+                    // 성공 후 처리
+                    setNewContents('');
+                    setNewTitle('');  // title도 초기화
+                    setIsCreating(false);
+                    return response
+                }
+            } catch (error) {
+                console.error('공지사항 저장 중 오류가 발생했습니다:', error);
+            }
         }
-        const newNotice = {
-            id: id,
-            title: '',
-            content: '',
-            author: '관리자',
-            date: new Date().toISOString().split('T')[0]
-        };
+    };
+
+    const handleCreate = () => {
+        setNewContents('');
+        setNewTitle('');// ReactQuill 내용 초기화
+
+        const newNotice = saveRequest();
         setSelectedNotice(newNotice);
         setIsCreating(true);
     };
@@ -118,6 +145,17 @@ function NoticeBoardPage() {
             setNotices(updatedNotices);
             setSelectedNotice(selectedNotice);
         }
+    };
+
+    const handleUpdate = () => {
+ 
+        let id = 0;
+        if (!notices || notices.length === 0) {
+            id = 1;
+        } else {
+            id = notices.length + 1; 
+        }
+
     };
 
     const handleDelete = (id) => {
@@ -171,7 +209,6 @@ function NoticeBoardPage() {
                                 }}
                             >
                                 <div className="flex justify-between items-center">
-                                    
                                     <h3 className="font-semibold text-gray-800 truncate">{notice.title}</h3>
                                     <span className="text-sm text-gray-500">{notice.date}</span>
                                 </div>
@@ -188,14 +225,18 @@ function NoticeBoardPage() {
                             {isCreating ? (
                                 <>
                                 <div class="flex justify-between items-center mb-6">
-                                    <input className="text-2xl font-bold w-full" placeholder='제목을 입력해주세요'/>
+                                    <input className="text-2xl font-bold w-full" 
+                                    value={newTitle}
+                                    onChange={(e) => setNewTitle(e.target.value)}
+                                    placeholder='제목을 입력해주세요'/>
                                 </div>
                                 
                                     <ReactQuill
                                         theme="snow"
                                         modules={modules}
                                         formats={formats}
-                                        onChange={setContents}
+                                        value={newContents}
+                                        onChange={setNewContents}
                                     />
                                     <div className="flex justify-end space-x-2 mt-4">
                                         <button 
@@ -218,10 +259,10 @@ function NoticeBoardPage() {
                             ) : (
                                 <>
                                     <div className="flex justify-between items-center mb-6">
-                                    <input className="text-2xl font-bold w-full" value={selectedNotice.title} />
+                                        <h2 className="text-2xl font-bold">{selectedNotice.title}</h2>
                                         <div className="flex space-x-2">
                                         <button 
-                                                onClick={() => handleSave(selectedNotice)}
+                                                onClick={() => handleUpdate(selectedNotice)}
                                                 className="text-blue-500 hover:bg-blue-50 p-2 rounded-full"
                                                 id='modifyButton'
                                             >

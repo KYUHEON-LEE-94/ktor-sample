@@ -61,7 +61,7 @@ function Weather() {
                 try {
                     let nx = locationData.nx
                     let ny = locationData.ny
-                    const response = await axios.get(`http://localhost:8081/weather?nx=${nx}&ny=${ny}&base_date=${locationData.baseDate}&base_time=${locationData.basetime}`);
+                    const response = await axios.get(`http://localhost:8081/api/weather?nx=${nx}&ny=${ny}&base_date=${locationData.baseDate}&base_time=${locationData.basetime}`);
 
                     setWeatherData(response.data);
                 } catch (error) {
