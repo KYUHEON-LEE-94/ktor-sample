@@ -1,17 +1,7 @@
 package com.study.board.service
 
-import com.study.board.model.Notice
-import com.study.board.model.NoticeDAO
-import com.study.util.GpsTransfer
-import com.study.util.getCurrentTimeFormatted
-import com.study.weather.model.PrecipitationType
-import com.study.weather.model.WeatherRequest
-import com.study.weather.model.WeatherResponse
-import kotlinx.serialization.json.Json
-import org.apache.http.client.methods.HttpGet
-import org.apache.http.impl.client.HttpClients
-import org.apache.http.util.EntityUtils
-import org.jetbrains.exposed.sql.transactions.transaction
+import com.study.board.model.*
+import org.jetbrains.exposed.sql.SchemaUtils
 
 /**
  * @Description : WeatherService.java
@@ -30,28 +20,25 @@ import org.jetbrains.exposed.sql.transactions.transaction
  * <pre>
  */
 
-class NoticeService {
+object NoticeService {
 
+    suspend fun allNotices(): List<Notice> = dbSuspendTransac {
+        NoticeDAO .all().map(::noticeDaoModel)
+    }
 
-    fun saveNotice(notice:Notice): Notice {
-        println("insert Notice $notice")
-        return transaction {
-            val newNotice = NoticeDAO.new {
+    suspend fun saveNotice (notice: Notice): Unit = dbSuspendTransac {
+        try {
+            println("insert Notice $notice")
+
+            NoticeDAO.new {
                 title = notice.title
                 contents = notice.contents
                 author = notice.author
                 date = notice.date
             }
-
-            Notice(
-                title = newNotice.title,
-                contents = newNotice.contents,
-                author = newNotice.author,
-                date = newNotice.date
-            )
-
+        } catch (e: Exception) {
+            println("Error saving notice: ${e.message}")
+            throw e // 예외를 다시 던져서 문제를 추적
         }
-
-
-        }
+    }
 }

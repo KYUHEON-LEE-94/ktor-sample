@@ -1,5 +1,6 @@
 package com.study
 
+import com.study.board.service.NoticeService
 import com.study.plugins.*
 import com.study.plugins.configureSerialization
 import com.study.weather.service.WeatherService
@@ -16,10 +17,10 @@ fun main() {
 
 fun Application.module() {
 
-    val weatherService = WeatherService()
     configureSerialization()
     configureDatabases()
     configureSockets()
-    weatherRouting(weatherService)
+    weatherRouting(WeatherService())
+    noticeRouting()
 
 }

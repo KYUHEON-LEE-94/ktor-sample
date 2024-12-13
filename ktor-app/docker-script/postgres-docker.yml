@@ -6,13 +6,19 @@ services:
     environment:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: user12#$
-      POSTGRES_DB: notice
+      POSTGRES_DB: myapp
     ports:
       - "5432:5432"
-    volumes:
-      - pg_data:/var/lib/postgresql/data
 volumes:
   pg_data:
 
 
 #docker-compose -f postgres-docker.yml up -d
+
+#  CREATE TABLE notice (
+#  id SERIAL PRIMARY KEY,
+#  title VARCHAR(255) NOT NULL,
+#  contents VARCHAR(4096) NOT NULL,
+#  author VARCHAR(50) NOT NULL,
+#  date VARCHAR(50) NOT NULL
+#  );

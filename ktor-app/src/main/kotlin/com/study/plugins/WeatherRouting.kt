@@ -1,7 +1,6 @@
 package com.study.plugins
 
 import com.study.board.model.Notice
-import com.study.util.GpsTransfer
 import com.study.util.getCurrentDateFormatted
 import com.study.util.getCurrentTimeFormatted
 import com.study.weather.model.WeatherRequest
@@ -12,7 +11,6 @@ import io.ktor.server.http.content.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import kotlin.math.round
 
 fun Application.weatherRouting(weatherService: WeatherService) {
     routing {
@@ -40,6 +38,7 @@ fun Application.weatherRouting(weatherService: WeatherService) {
         post("/api/notice") {
             val postData = call.receive<Notice>()
             println("request : $postData")
+
 
             // Send the response back to the client
             call.respond(HttpStatusCode.Created, postData)

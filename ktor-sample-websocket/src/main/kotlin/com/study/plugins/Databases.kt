@@ -12,5 +12,7 @@ fun Application.configureDatabases() {
         user = "myuser",
         password = "mypassword"
     )
+
+    println("Database connected successfully")
 }
 

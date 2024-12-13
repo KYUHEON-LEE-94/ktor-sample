@@ -82,18 +82,9 @@ function NoticeBoardPage() {
     const saveRequest = async () => {
         if (newContents && newTitle) {  // title도 체크
             try {
-
-                let id = 0;
-                if (!notices || notices.length === 0) {
-                    id = 1;
-                } else {
-                    id = notices.length + 1;
-                }
-
-                const response = await axios.post('http://localhost:8081/api/notices', {
-                    id: id,
+                const response = await axios.post('http://localhost:8081/api/notice', {
                     title: newTitle,  // newTitle 사용
-                    content: newContents,
+                    contents: newContents,
                     author: '관리자',
                     date: new Date().toISOString().split('T')[0]
                 });
@@ -118,23 +109,22 @@ function NoticeBoardPage() {
         setNewTitle('');// ReactQuill 내용 초기화
 
         const newNotice = saveRequest();
+
+        if(notices) setNotices([...notices, newNotice]);
+            else setNotices([newNotice]);
+
         setSelectedNotice(newNotice);
         setIsCreating(true);
     };
 
     const handleSave = () => {
  
-        let id = 0;
-        if (!notices || notices.length === 0) {
-            id = 1;
-        } else {
-            id = notices.length + 1; 
-        }
-
         if (isCreating) {
 
-            const newNotice = {...selectedNotice, id: id};
-            setNotices([...notices, newNotice]);
+            const newNotice = saveRequest();
+
+            if(notices) setNotices([...notices, newNotice]);
+                else setNotices([newNotice]);
 
             setIsCreating(false);
             setSelectedNotice(newNotice);
@@ -166,9 +156,9 @@ function NoticeBoardPage() {
     };
 
 
-    const filteredNotices = notices ? notices.filter(notice => 
-        notice.title.toLowerCase().includes(searchTerm?.toLowerCase() || '')
-    ) : [];
+const filteredNotices = notices && Array.isArray(notices) ? notices.filter(notice => 
+    notice?.title?.includes(searchTerm || '')
+) : [];
 
     return (
         <div className="container mx-auto px-4 py-8 bg-gray-50 min-h-screen">
@@ -224,7 +214,7 @@ function NoticeBoardPage() {
                         <div>
                             {isCreating ? (
                                 <>
-                                <div class="flex justify-between items-center mb-6">
+                                <div className="flex justify-between items-center mb-6">
                                     <input className="text-2xl font-bold w-full" 
                                     value={newTitle}
                                     onChange={(e) => setNewTitle(e.target.value)}
