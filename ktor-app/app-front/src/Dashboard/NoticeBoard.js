@@ -61,11 +61,13 @@ function NoticeBoardPage() {
     //     },
     // ]);
 
-    const [notices, setNotices] = useState();
+    const [notices, setNotices] = useState([]);
 
     const [selectedNotice, setSelectedNotice] = useState(null);
     const [isCreating, setIsCreating] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
+    /*로딩 상태 */
+    const [isLoading, setIsLoading] = useState(false);
 
     // URL에서 전달된 noticeId로 공지사항 선택
     useEffect(() => {
@@ -78,6 +80,10 @@ function NoticeBoardPage() {
         }
     }, [noticeId, notices]);
 
+    // 컴포넌트 마운트 시 데이터 가져오기
+    useEffect(() => {
+        getNotices();
+    }, []); // 빈 배열을 넣어 컴포넌트 마운트 시 한 번만 실행
 
     const saveRequest = async () => {
         if (newContents && newTitle) {  // title도 체크
@@ -103,6 +109,21 @@ function NoticeBoardPage() {
             }
         }
     };
+
+    const getNotices = async () => {
+        try {
+            const response = await axios.get('http://localhost:8081/api/notice');
+            if (response.status === 200 || response.status === 202) {
+                console.log('get Notices success');
+                setNotices(response.data); // 받아온 데이터를 notices state에 저장
+            }
+        } catch (error) {
+            console.error('공지사항을 가져오는 중 오류가 발생했습니다:', error);
+        }finally {
+            setIsLoading(false);
+        }
+    };
+
 
     const handleCreate = () => {
         setNewContents('');
