@@ -33,7 +33,7 @@ fun Application.noticeRouting() {
                 runBlocking {
                     println("runBlocking Start")
                     val savedNotice = NoticeService.saveNotice(postData)
-                    println("savedNotice : $savedNotice")
+                    println("저장 : $savedNotice")
 
                     call.respond(HttpStatusCode.Created, savedNotice)
                 }

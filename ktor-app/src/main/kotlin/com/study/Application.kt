@@ -17,6 +17,7 @@ fun main() {
 
 fun Application.module() {
 
+    allowRequest()
     configureSerialization()
     configureDatabases()
     configureSockets()

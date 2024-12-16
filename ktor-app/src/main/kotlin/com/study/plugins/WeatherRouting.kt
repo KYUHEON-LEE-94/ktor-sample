@@ -34,15 +34,6 @@ fun Application.weatherRouting(weatherService: WeatherService) {
             // Send the response back to the client
             call.respond(response)
         }
-
-        post("/api/notice") {
-            val postData = call.receive<Notice>()
-            println("request : $postData")
-
-
-            // Send the response back to the client
-            call.respond(HttpStatusCode.Created, postData)
-        }
     }
 }
 

@@ -20,21 +20,6 @@ import org.apache.http.util.EntityUtils
 import kotlin.time.Duration
 
 fun Application.configureSockets() {
-    install(CORS) {
-        allowHost("localhost:3000")
-        allowHost("127.0.0.1:3000")
-
-        // 필요한 HTTP 메서드 허용
-        allowMethod(HttpMethod.Get)
-
-        // 필요한 헤더 허용
-        allowHeader(HttpHeaders.ContentType)
-        allowHeader(HttpHeaders.AccessControlAllowOrigin)
-
-        // WebSocket 관련 설정
-        allowNonSimpleContentTypes = true
-    }
-
     install(WebSockets) {
         //WebSocket을 통해 주고받는 메시지를 직렬화 및 역직렬화하기 위해 KotlinxWebsocketSerializationConverter를 사용
         contentConverter = KotlinxWebsocketSerializationConverter(Json)
