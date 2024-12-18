@@ -4,12 +4,12 @@ import axios from 'axios';
 import ReactQuill, { Quill } from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 
-import { 
+import {
     Save,
-    Trash2, 
-    PlusCircle, 
-    X, 
-    Search 
+    Trash2,
+    PlusCircle,
+    X,
+    Search
 } from 'lucide-react';
 
 
@@ -19,6 +19,8 @@ function NoticeBoardPage() {
     const [contents, setContents] = useState('');
     const [newContents, setNewContents] = useState('');
     const [newTitle, setNewTitle] = useState('');
+    const [editingContents, setEditingContents] = useState('');
+    const [editingTitle, setEditingTitle] = useState('');
 
     const formats = [
         'header',
@@ -29,37 +31,21 @@ function NoticeBoardPage() {
     ];
 
     const modules = useMemo(() => {
-       return {
-        toolbar: [
-            [{ header: [1, 2, 3, false] }],
-            ['bold', 'italic', 'underline', 'strike'],
-            [{ list: 'ordered' }, { list: 'bullet' }],
-            ['code-block'], // code-block 버튼 추가
-            ['link', 'image'],
-            ['clean']
-        ],
-       };
-     }, []);
+        return {
+            toolbar: [
+                [{ header: [1, 2, 3, false] }],
+                ['bold', 'italic', 'underline', 'strike'],
+                [{ list: 'ordered' }, { list: 'bullet' }],
+                ['code-block'], // code-block 버튼 추가
+                ['link', 'image'],
+                ['clean']
+            ],
+        };
+    }, []);
 
     const location = useLocation();
+    //DashBoard 페이지에서 noticeId를 받아옴
     const noticeId = location.state.noticeId;
-
-    // const [notices, setNotices] = useState([
-    //     { 
-    //         id: 1, 
-    //         title: '시스템 점검 안내', 
-    //         content: '오는 토요일 새벽 2시부터 4시까지 시스템 점검이 예정되어 있습니다.', 
-    //         author: '관리자', 
-    //         date: '2024-02-15' 
-    //     },
-    //     { 
-    //         id: 2, 
-    //         title: '새로운 기능 업데이트', 
-    //         content: '대시보드에 새로운 분석 기능이 추가되었습니다.', 
-    //         author: '관리자', 
-    //         date: '2024-02-10' 
-    //     },
-    // ]);
 
     const [notices, setNotices] = useState([]);
 
@@ -76,7 +62,7 @@ function NoticeBoardPage() {
             if (notice) {
                 setSelectedNotice(notice);
                 setIsCreating(false);
-            } 
+            }
         }
     }, [noticeId, notices]);
 
@@ -84,6 +70,14 @@ function NoticeBoardPage() {
     useEffect(() => {
         getNotices();
     }, []); // 빈 배열을 넣어 컴포넌트 마운트 시 한 번만 실행
+
+    // selectedNotice가 변경될 때 편집용 state 업데이트
+    useEffect(() => {
+        if (selectedNotice) {
+            setEditingContents(selectedNotice.contents);
+            setEditingTitle(selectedNotice.title);
+        }
+    }, [selectedNotice]);
 
     const saveRequest = async () => {
         if (newContents && newTitle) {  // title도 체크
@@ -94,7 +88,7 @@ function NoticeBoardPage() {
                     author: '관리자',
                     date: new Date().toISOString().split('T')[0]
                 });
-    
+
                 console.log(response);
                 if (response.status === 200 || response.status === 201) {
                     console.log('공지사항이 성공적으로 저장되었습니다.');
@@ -119,7 +113,7 @@ function NoticeBoardPage() {
             }
         } catch (error) {
             console.error('공지사항을 가져오는 중 오류가 발생했습니다:', error);
-        }finally {
+        } finally {
             setIsLoading(false);
         }
     };
@@ -131,26 +125,28 @@ function NoticeBoardPage() {
 
         const newNotice = saveRequest();
 
-        if(notices) setNotices([...notices, newNotice]);
-            else setNotices([newNotice]);
+        if (notices) setNotices([...notices, newNotice]);
+        else setNotices([newNotice]);
 
         setSelectedNotice(newNotice);
         setIsCreating(true);
     };
 
-    const handleSave = () => {
- 
+    const handleUPdate = async () => {
         if (isCreating) {
+            try {
+                const response = await saveRequest();  // 저장 요청 대기
 
-            const newNotice = saveRequest();
-
-            if(notices) setNotices([...notices, newNotice]);
-                else setNotices([newNotice]);
-
-            setIsCreating(false);
-            setSelectedNotice(newNotice);
+                if (response && (response.status === 200 || response.status === 201)) {
+                    await getNotices();  // 서버에서 최신 목록 다시 가져오기
+                    setIsCreating(false);
+                    setSelectedNotice(null);
+                }
+            } catch (error) {
+                console.error('공지사항 저장 중 오류 발생:', error);
+            }
         } else {
-            const updatedNotices = notices.map(notice => 
+            const updatedNotices = notices.map(notice =>
                 notice.id === selectedNotice.id ? selectedNotice : notice
             );
             setNotices(updatedNotices);
@@ -159,12 +155,12 @@ function NoticeBoardPage() {
     };
 
     const handleUpdate = () => {
- 
+
         let id = 0;
         if (!notices || notices.length === 0) {
             id = 1;
         } else {
-            id = notices.length + 1; 
+            id = notices.length + 1;
         }
 
     };
@@ -177,9 +173,9 @@ function NoticeBoardPage() {
     };
 
 
-const filteredNotices = notices && Array.isArray(notices) ? notices.filter(notice => 
-    notice?.title?.includes(searchTerm || '')
-) : [];
+    const filteredNotices = notices && Array.isArray(notices) ? notices.filter(notice =>
+        notice?.title?.includes(searchTerm || '')
+    ) : [notices];
 
     return (
         <div className="container mx-auto px-4 py-8 bg-gray-50 min-h-screen">
@@ -187,16 +183,16 @@ const filteredNotices = notices && Array.isArray(notices) ? notices.filter(notic
                 <h1 className="text-3xl font-bold text-gray-800">공지사항</h1>
                 <div className="flex items-center space-x-4">
                     <div className="relative">
-                        <input 
-                            type="text" 
-                            placeholder="공지사항 검색" 
+                        <input
+                            type="text"
+                            placeholder="공지사항 검색"
                             className="pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                         <Search className="absolute left-3 top-3 text-gray-400" />
                     </div>
-                    <button 
+                    <button
                         onClick={handleCreate}
                         className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center"
                     >
@@ -210,8 +206,8 @@ const filteredNotices = notices && Array.isArray(notices) ? notices.filter(notic
                 <div className="col-span-1 bg-white shadow-md rounded-lg overflow-hidden">
                     <div className="divide-y divide-gray-200">
                         {filteredNotices.map(notice => (
-                            <div 
-                                key={notice.id} 
+                            <div
+                                key={notice.id}
                                 className={`p-4 hover:bg-gray-100 cursor-pointer ${selectedNotice?.id === notice.id ? 'bg-blue-50' : ''}`}
                                 onClick={() => {
                                     //클릭한 게시글의 속성 변경
@@ -235,13 +231,13 @@ const filteredNotices = notices && Array.isArray(notices) ? notices.filter(notic
                         <div>
                             {isCreating ? (
                                 <>
-                                <div className="flex justify-between items-center mb-6">
-                                    <input className="text-2xl font-bold w-full" 
-                                    value={newTitle}
-                                    onChange={(e) => setNewTitle(e.target.value)}
-                                    placeholder='제목을 입력해주세요'/>
-                                </div>
-                                
+                                    <div className="flex justify-between items-center mb-6">
+                                        <input className="text-2xl font-bold w-full"
+                                            value={newTitle}
+                                            onChange={(e) => setNewTitle(e.target.value)}
+                                            placeholder='제목을 입력해주세요' />
+                                    </div>
+
                                     <ReactQuill
                                         theme="snow"
                                         modules={modules}
@@ -250,13 +246,13 @@ const filteredNotices = notices && Array.isArray(notices) ? notices.filter(notic
                                         onChange={setNewContents}
                                     />
                                     <div className="flex justify-end space-x-2 mt-4">
-                                        <button 
-                                            onClick={handleSave}
+                                        <button
+                                            onClick={handleUPdate}
                                             className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 flex items-center"
                                         >
                                             <Save className="mr-2" /> 저장
                                         </button>
-                                        <button 
+                                        <button
                                             onClick={() => {
                                                 setIsCreating(false);
                                                 setSelectedNotice(null);
@@ -270,16 +266,20 @@ const filteredNotices = notices && Array.isArray(notices) ? notices.filter(notic
                             ) : (
                                 <>
                                     <div className="flex justify-between items-center mb-6">
-                                        <h2 className="text-2xl font-bold">{selectedNotice.title}</h2>
+                                        <input
+                                            className="text-2xl font-bold w-full"
+                                            value={editingTitle}
+                                            onChange={(e) => setEditingTitle(e.target.value)}
+                                        />
                                         <div className="flex space-x-2">
-                                        <button 
+                                            <button
                                                 onClick={() => handleUpdate(selectedNotice)}
                                                 className="text-blue-500 hover:bg-blue-50 p-2 rounded-full"
                                                 id='modifyButton'
                                             >
                                                 <Save />
                                             </button>
-                                            <button 
+                                            <button
                                                 onClick={() => handleDelete(selectedNotice.id)}
                                                 className="text-red-500 hover:bg-red-50 p-2 rounded-full"
                                             >
@@ -292,8 +292,8 @@ const filteredNotices = notices && Array.isArray(notices) ? notices.filter(notic
                                         theme="snow"
                                         modules={modules}
                                         formats={formats}
-                                        value={selectedNotice.content}
-                                        onChange={setContents}
+                                        value={editingContents}
+                                        onChange={setEditingContents}
                                     />
 
 
