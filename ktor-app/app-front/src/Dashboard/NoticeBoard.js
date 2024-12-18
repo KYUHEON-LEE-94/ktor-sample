@@ -16,7 +16,6 @@ import {
 
 function NoticeBoardPage() {
 
-    const [contents, setContents] = useState('');
     const [newContents, setNewContents] = useState('');
     const [newTitle, setNewTitle] = useState('');
     const [editingContents, setEditingContents] = useState('');
@@ -83,10 +82,10 @@ function NoticeBoardPage() {
         if (newContents && newTitle) {  // title도 체크
             try {
                 const response = await axios.post('http://localhost:8081/api/notice', {
-                    title: newTitle,  // newTitle 사용
+                    title: newTitle,
                     contents: newContents,
                     author: '관리자',
-                    date: new Date().toISOString().split('T')[0]
+                    date: new Date().toISOString().replace('T', ' ').split('.')[0]
                 });
 
                 console.log(response);
@@ -173,9 +172,13 @@ function NoticeBoardPage() {
     };
 
 
-    const filteredNotices = notices && Array.isArray(notices) ? notices.filter(notice =>
-        notice?.title?.includes(searchTerm || '')
-    ) : [notices];
+    const filteredNotices = useMemo(() => {
+        if (!notices || !Array.isArray(notices)) return [];
+
+        return notices.filter(notice =>
+            notice && notice.title && notice.title.includes(searchTerm || '')
+        );
+    }, [notices, searchTerm]);
 
     return (
         <div className="container mx-auto px-4 py-8 bg-gray-50 min-h-screen">
@@ -205,12 +208,11 @@ function NoticeBoardPage() {
                 {/* 공지사항 목록 */}
                 <div className="col-span-1 bg-white shadow-md rounded-lg overflow-hidden">
                     <div className="divide-y divide-gray-200">
-                        {filteredNotices.map(notice => (
+                        {filteredNotices.map((notice, index) => (
                             <div
-                                key={notice.id}
-                                className={`p-4 hover:bg-gray-100 cursor-pointer ${selectedNotice?.id === notice.id ? 'bg-blue-50' : ''}`}
+                                key={notice.id || `temp-${index}`}
+                                className={`p-4 hover:bg-gray-100 cursor-pointer ${selectedNotice && selectedNotice.id === notice.id ? 'bg-blue-50' : ''}`}
                                 onClick={() => {
-                                    //클릭한 게시글의 속성 변경
                                     setSelectedNotice(notice);
                                     setIsCreating(false);
                                 }}

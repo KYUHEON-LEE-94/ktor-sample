@@ -43,6 +43,22 @@ fun Application.noticeRouting() {
             }
         }
 
+        get("/api/notice") {
+            try {
+                // Query Parameter에서 "limit" 값을 가져오고, 없으면 기본값 10으로 설정
+                val limit = call.request.queryParameters["limit"]?.toIntOrNull() ?: 10
+                println("limit : $limit")
+
+                runBlocking {
+                    val notices = NoticeService.allNotices(limit)
+                    call.respond(HttpStatusCode.OK, notices)
+                }
+            } catch (e: Exception) {
+                println("Error occurred: ${e.message}")
+                call.respond(HttpStatusCode.InternalServerError, "Error occurred while retrieving notices")
+            }
+        }
+
 
         get("/api/notice") {
             try {

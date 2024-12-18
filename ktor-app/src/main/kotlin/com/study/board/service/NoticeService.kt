@@ -2,6 +2,7 @@ package com.study.board.service
 
 import com.study.board.model.*
 import org.jetbrains.exposed.sql.SchemaUtils
+import org.jetbrains.exposed.sql.SortOrder
 
 /**
  * @Description : WeatherService.java
@@ -23,7 +24,16 @@ import org.jetbrains.exposed.sql.SchemaUtils
 object NoticeService {
 
     suspend fun allNotices(): List<Notice> = dbSuspendTransac {
-        NoticeDAO .all().map(::noticeDaoModel)
+        NoticeDAO.all()
+            .orderBy(NoticeMapper.date to SortOrder.DESC)
+            .map(::noticeDaoModel)
+    }
+
+    suspend fun allNotices(limit: Int): List<Notice> = dbSuspendTransac {
+        NoticeDAO.all()
+            .orderBy(NoticeMapper.date to SortOrder.DESC) // 최신 데이터가 위로 오도록 정렬
+            .limit(limit) // 최대 개수 제한
+            .map(::noticeDaoModel)
     }
 
     suspend fun saveNotice (notice: Notice): Unit = dbSuspendTransac {

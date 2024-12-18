@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
+import axios from 'axios';
 import { Link } from 'react-router-dom'; // Link 임포트
 import { Waves, CheckCheck, Clock, PieChart } from 'lucide-react';
 import Weather from '../Dashboard/Weather';
@@ -9,25 +10,25 @@ import Weather from '../Dashboard/Weather';
  * **/
 function Dashboard() {
 
-    // Axios로 가져와야함
-    const notices = [
-        { 
-            id: 1, 
-            title: '시스템 점검 안내', 
-            content: '오는 토요일 새벽 2시부터 4시까지 시스템 점검이 예정되어 있습니다.', 
-            author: '관리자', 
-            date: '2024-02-15' 
-        },
-        { 
-            id: 2, 
-            title: '새로운 기능 업데이트', 
-            content: '대시보드에 새로운 분석 기능이 추가되었습니다.', 
-            author: '관리자', 
-            date: '2024-02-10' 
-        },
-    ];
+    const [notices, setNotices] = useState([]);
 
+    const getNotices = async () => {
+        try {
+            const response = await axios.get('http://localhost:8081/api/notice?limit=3');
+            if (response.status === 200 || response.status === 202) {
+                console.log(response.data)
+                setNotices(response.data); // 받아온 데이터를 notices state에 저장
+            }
+        } catch (error) {
+            console.error('공지사항을 가져오는 중 오류가 발생했습니다:', error);
+        } finally {
+        }
+    };
 
+    // 컴포넌트 마운트 시 데이터 가져오기
+    useEffect(() => {
+        getNotices();
+    }, []);
 
     const smallCardStyle = "bg-white p-4 sm:p-6 shadow-md rounded-lg transition-all duration-300 hover:shadow-xl hover:scale-105 flex flex-col";
     const largeCardStyle = "bg-white p-6 sm:p-8 shadow-lg rounded-lg space-y-4";
@@ -47,17 +48,17 @@ function Dashboard() {
                         </div>
                         <Weather />
                     </div>
-                    
+
                     <div className={`${smallCardStyle}`}>
                         <div className="flex justify-between items-center mb-4">
                             <CheckCheck className="w-6 sm:w-8 h-6 sm:h-8 text-green-500" />
                             <span className="text-gray-500 ">공지</span>
                         </div>
-                        {notices.slice(0, 3).map(notice => (
-                            <Link 
+                        {notices.map(notice => (
+                            <Link
                                 to="/notice-board"
-                                state={{ noticeId: notice.id}}
-                                key={notice.id} 
+                                state={{ noticeId: notice.id }}
+                                key={notice.id}
                                 className="block p-3 sm:p-4 bg-white shadow rounded-lg hover:bg-gray-100 mb-2 last:mb-0"
                             >
                                 <h4 className="font-semibold text-gray-800 text-sm sm:text-base">{notice.title}</h4>
@@ -67,7 +68,7 @@ function Dashboard() {
                             </Link>
                         ))}
                     </div>
-                    
+
                     <div className={`${smallCardStyle}`}>
                         <div className="flex justify-between items-center mb-4">
                             <Clock className="w-6 sm:w-8 h-6 sm:h-8 text-purple-500" />
@@ -78,7 +79,7 @@ function Dashboard() {
                             <p className="text-xs sm:text-sm text-gray-500">{new Date().toLocaleTimeString()}</p>
                         </div>
                     </div>
-                    
+
                     <div className={`${smallCardStyle}`}>
                         <div className="flex justify-between items-center mb-4">
                             <PieChart className="w-6 sm:w-8 h-6 sm:h-8 text-red-500" />
@@ -99,7 +100,7 @@ function Dashboard() {
                         </div>
                         <p className="text-sm sm:text-base text-gray-600">웹크롤링해서 신문사 4개정도 (썸네일, 제목, 본문, 날짜)</p>
                     </div>
-                    
+
                     <div className={`${largeCardStyle}`}>
                         <div className="flex items-center space-x-4 border-b pb-4">
                             <PieChart className="w-6 sm:w-8 h-6 sm:h-8 text-teal-600" />

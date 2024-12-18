@@ -22,3 +22,5 @@ volumes:
 #  author VARCHAR(50) NOT NULL,
 #  date VARCHAR(50) NOT NULL
 #  );
+
+# docker exec -it postgres_local psql -U user -d myapp

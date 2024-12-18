@@ -48,6 +48,7 @@ suspend fun <T> dbSuspendTransac(block: Transaction.() -> T): T =
 * DAO를 데이터 모델로 변환하는 함수
 * */
 fun noticeDaoModel(dao: NoticeDAO) = Notice(
+    id = dao.id.value,
     title = dao.title,
     contents = dao.contents,
     author = dao.author,
