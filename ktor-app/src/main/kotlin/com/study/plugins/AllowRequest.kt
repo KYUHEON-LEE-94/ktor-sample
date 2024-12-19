@@ -26,6 +26,8 @@ fun Application.allowRequest() {
 
         // 필요한 HTTP 메서드 허용
         allowMethod(HttpMethod.Get)
+        allowMethod(HttpMethod.Post)
+        allowMethod(HttpMethod.Delete)
 
         // 필요한 헤더 허용
         allowHeader(HttpHeaders.ContentType)

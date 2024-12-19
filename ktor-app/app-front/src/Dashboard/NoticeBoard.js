@@ -1,7 +1,7 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import axios from 'axios';
-import ReactQuill, { Quill } from 'react-quill';
+import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 
 import {
@@ -117,6 +117,20 @@ function NoticeBoardPage() {
         }
     };
 
+    const deleteNotice = async (id) => {
+        try {
+            const response = await axios.delete(`http://localhost:8081/api/notice/${id}`);
+            if (response.status === 200 || response.status === 202) {
+                console.log('get Notices success');
+                return response;
+            }
+        } catch (error) {
+            console.error('공지사항을 가져오는 중 오류가 발생했습니다:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
 
     const handleCreate = () => {
         setNewContents('');
@@ -131,7 +145,7 @@ function NoticeBoardPage() {
         setIsCreating(true);
     };
 
-    const handleUPdate = async () => {
+    const handleSave = async () => {
         if (isCreating) {
             try {
                 const response = await saveRequest();  // 저장 요청 대기
@@ -153,22 +167,21 @@ function NoticeBoardPage() {
         }
     };
 
-    const handleUpdate = () => {
-
-        let id = 0;
-        if (!notices || notices.length === 0) {
-            id = 1;
-        } else {
-            id = notices.length + 1;
-        }
-
+    
+    const handleUpdate = async () => {
+       
     };
 
-    const handleDelete = (id) => {
-        const updatedNotices = notices.filter(notice => notice.id !== id);
-        setNotices(updatedNotices);
 
-        setSelectedNotice(null);
+    const handleDelete = async (id) => {
+        console.log(id)
+        const response = await deleteNotice(id)
+        if (response && (response.status === 200 || response.status === 201)) {
+            await getNotices();  // 서버에서 최신 목록 다시 가져오기
+            setIsCreating(false);
+            setSelectedNotice(null);
+        }
+                
     };
 
 
@@ -249,7 +262,7 @@ function NoticeBoardPage() {
                                     />
                                     <div className="flex justify-end space-x-2 mt-4">
                                         <button
-                                            onClick={handleUPdate}
+                                            onClick={handleSave}
                                             className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 flex items-center"
                                         >
                                             <Save className="mr-2" /> 저장

@@ -24,6 +24,31 @@ import kotlin.math.round
 
 fun Application.noticeRouting() {
     routing {
+        delete("/api/notice/{id}") {
+            // 1️⃣ id를 경로 파라미터로 가져옵니다.
+            val id = call.parameters["id"]?.toIntOrNull()
+            println("Deleted ID : $id")
+
+            // 2️⃣ id가 null이면 400 Bad Request 응답을 반환합니다.
+            if (id == null) {
+                call.respond(HttpStatusCode.BadRequest, "Invalid or missing ID")
+                return@delete
+            }
+
+            try {
+                // 3️⃣ 삭제 작업을 비동기 처리합니다.
+                val rowsDeleted = NoticeService.deleteNotice(id)
+
+                if (rowsDeleted > 0) {
+                    call.respond(HttpStatusCode.OK, "Notice with ID $id has been deleted successfully")
+                } else {
+                    call.respond(HttpStatusCode.NotFound, "Notice with ID $id not found")
+                }
+            } catch (e: Exception) {
+                println("Error occurred: ${e.message}")
+                call.respond(HttpStatusCode.InternalServerError, "Error occurred while deleting notice")
+            }
+        }
 
         post("/api/notice") {
             val postData = call.receive<Notice>()
@@ -58,7 +83,6 @@ fun Application.noticeRouting() {
                 call.respond(HttpStatusCode.InternalServerError, "Error occurred while retrieving notices")
             }
         }
-
 
         get("/api/notice") {
             try {

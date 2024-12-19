@@ -51,4 +51,18 @@ object NoticeService {
             throw e // 예외를 다시 던져서 문제를 추적
         }
     }
+
+    suspend fun deleteNotice(id: Int): Int = dbSuspendTransac {
+        try {
+            val deleted = NoticeDAO.findById(id)?.delete() // delete()는 Unit을 반환합니다.
+            val rowsDeleted = if (deleted != null) 1 else 0 // delete()가 호출되었다면 1로 취급
+            println("Deleted $rowsDeleted row(s) for ID: $id")
+
+            rowsDeleted // Int 반환
+
+        } catch (e: Exception) {
+            println("Error deleting notice: ${e.message}")
+            throw e // 예외를 다시 던져서 문제를 추적
+        }
+    }
 }
