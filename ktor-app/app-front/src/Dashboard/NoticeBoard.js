@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import axios from 'axios';
 import ReactQuill from 'react-quill';
@@ -15,7 +15,6 @@ import {
 
 
 function NoticeBoardPage() {
-
     const [newContents, setNewContents] = useState('');
     const [newTitle, setNewTitle] = useState('');
     const [editingContents, setEditingContents] = useState('');
@@ -108,6 +107,7 @@ function NoticeBoardPage() {
             const response = await axios.get('http://localhost:8081/api/notice');
             if (response.status === 200 || response.status === 202) {
                 console.log('get Notices success');
+                console.log(response.data)
                 setNotices(response.data); // 받아온 데이터를 notices state에 저장
             }
         } catch (error) {
@@ -121,7 +121,7 @@ function NoticeBoardPage() {
         try {
             const response = await axios.delete(`http://localhost:8081/api/notice/${id}`);
             if (response.status === 200 || response.status === 202) {
-                console.log('get Notices success');
+                console.log('delete Notices success');
                 return response;
             }
         } catch (error) {
@@ -223,18 +223,17 @@ function NoticeBoardPage() {
                     <div className="divide-y divide-gray-200">
                         {filteredNotices.map((notice, index) => (
                             <div
-                                key={notice.id || `temp-${index}`}
+                                key={notice.id}
                                 className={`p-4 hover:bg-gray-100 cursor-pointer ${selectedNotice && selectedNotice.id === notice.id ? 'bg-blue-50' : ''}`}
                                 onClick={() => {
                                     setSelectedNotice(notice);
                                     setIsCreating(false);
                                 }}
                             >
-                                <div className="flex justify-between items-center">
+                                <div className="flex justify-between items-center" title={notice.contents}>
                                     <h3 className="font-semibold text-gray-800 truncate">{notice.title}</h3>
                                     <span className="text-sm text-gray-500">{notice.date}</span>
                                 </div>
-                                <p className="text-sm text-gray-600 truncate">{notice.content}</p>
                             </div>
                         ))}
                     </div>
