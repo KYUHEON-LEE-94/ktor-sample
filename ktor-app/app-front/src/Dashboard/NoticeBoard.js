@@ -43,7 +43,7 @@ function NoticeBoardPage() {
 
     const location = useLocation();
     //DashBoard 페이지에서 noticeId를 받아옴
-    const noticeId = location.state.noticeId;
+    const noticeId = location.state?.noticeId || null;
 
     const [notices, setNotices] = useState([]);
 
@@ -61,6 +61,10 @@ function NoticeBoardPage() {
                 setSelectedNotice(notice);
                 setIsCreating(false);
             }
+        } else {
+            // noticeId가 없는 경우의 처리
+            setSelectedNotice(null);
+            setIsCreating(false);
         }
     }, [noticeId, notices]);
 
@@ -320,10 +324,11 @@ function NoticeBoardPage() {
                         </div>
                     ) : (
                         <div className="text-center text-gray-500 py-16">
-                            공지사항을 선택해주세요
+                            {notices && notices.length > 0 
+                                ? "공지사항을 선택해주세요"
+                                : "등록된 공지사항이 없습니다"}
                         </div>
-                    )
-                    }
+                    )}
                 </div>
             </div>
         </div>

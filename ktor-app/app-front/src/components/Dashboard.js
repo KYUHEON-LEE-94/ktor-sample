@@ -54,19 +54,28 @@ function Dashboard() {
                             <CheckCheck className="w-6 sm:w-8 h-6 sm:h-8 text-green-500" />
                             <span className="text-gray-500 ">공지</span>
                         </div>
-                        {notices.map(notice => (
+                        {notices && notices.length > 0 ? (
+                            notices.map(notice => (
+                                <Link
+                                    to="/notice-board"
+                                    state={{ noticeId: notice.id }}
+                                    key={notice.id}
+                                    className="block p-3 sm:p-4 bg-white shadow rounded-lg hover:bg-gray-100 mb-2 last:mb-0"
+                                >
+                                    <h4 className="font-semibold text-gray-800 text-sm sm:text-base">{notice.title}</h4>
+                                    <p className="text-gray-600 text-xs sm:text-sm overflow-hidden h-6 whitespace-nowrap overflow-ellipsis">
+                                        {notice.content}
+                                    </p>
+                                </Link>
+                            ))
+                        ) : (
                             <Link
                                 to="/notice-board"
-                                state={{ noticeId: notice.id }}
-                                key={notice.id}
-                                className="block p-3 sm:p-4 bg-white shadow rounded-lg hover:bg-gray-100 mb-2 last:mb-0"
+                                className="block p-3 sm:p-4 bg-white shadow rounded-lg hover:bg-gray-100 mb-2"
                             >
-                                <h4 className="font-semibold text-gray-800 text-sm sm:text-base">{notice.title}</h4>
-                                <p className="text-gray-600 text-xs sm:text-sm overflow-hidden h-6 whitespace-nowrap overflow-ellipsis">
-                                    {notice.content}
-                                </p>
+                                <p className="text-gray-600 text-center">공지사항이 없습니다</p>
                             </Link>
-                        ))}
+                        )}
                     </div>
 
                     <div className={`${smallCardStyle}`}>
