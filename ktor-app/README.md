@@ -1,4 +1,4 @@
-# 현재 진행 상황 (last. 2024-12-13
+# 현재 진행 상황 (last. 2024-12-20)
 ## 화면
 ### Dashboard
 ![image](https://github.com/user-attachments/assets/8e61c58e-589e-4f7f-9131-fdb596000cd1)
