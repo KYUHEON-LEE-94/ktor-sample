@@ -1,29 +1,33 @@
 package com.study.plugins
 
 import com.study.board.model.Notice
-import com.study.board.model.NoticeMapper
 import com.study.board.service.NoticeService
-import com.study.util.GpsTransfer
-import com.study.util.getCurrentDateFormatted
-import com.study.util.getCurrentTimeFormatted
-import com.study.weather.model.WeatherRequest
-import com.study.weather.service.WeatherService
+import java.io.*
 import io.ktor.http.*
+import io.ktor.http.content.PartData
+import io.ktor.http.content.forEachPart
 import io.ktor.server.application.*
 import io.ktor.server.http.content.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import io.ktor.utils.io.ByteReadChannel
+import io.ktor.utils.io.toByteArray
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.SchemaUtils
-import org.jetbrains.exposed.sql.transactions.transaction
-import kotlin.math.round
+import kotlinx.coroutines.withContext
+import kotlinx.io.IOException
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
+@OptIn(ExperimentalUuidApi::class)
 fun Application.noticeRouting() {
+
+    val NoticeUploadDir = "/notice/uploads" //게시판 이미지 저장 경로
+
     routing {
+        staticResources("/notice/images", "notice/uploads")
+
         delete("/api/notice/{id}") {
             // 1️⃣ id를 경로 파라미터로 가져옵니다.
             val id = call.parameters["id"]?.toIntOrNull()
@@ -84,6 +88,8 @@ fun Application.noticeRouting() {
             }
         }
 
+
+
         get("/api/notice") {
             try {
                 runBlocking {
@@ -98,6 +104,56 @@ fun Application.noticeRouting() {
                 call.respond(HttpStatusCode.InternalServerError, "Error occurred while saving notice")
             }
         }
+
+        get("/api/notice/upload") {
+            try {
+                val multipart = call.receiveMultipart()
+                println("multipart $multipart ")
+                var fileName: String? = null
+
+                multipart.forEachPart { part ->
+                    when (part) {
+                        is PartData.FileItem -> {
+                            // 파일 이름 생성 (중복 방지를 위해 UUID 사용)
+                            fileName = Uuid.random().toString() + "_" + part.originalFileName
+                            println("fileName $fileName ")
+                            // 업로드 디렉토리가 없으면 생성
+                            val directory = File(NoticeUploadDir)
+                            if (!directory.exists()) {
+                                directory.mkdirs()
+                            }
+
+                            // 파일 저장
+                            val file = File(directory, fileName)
+                            // ByteReadChannel을 사용하여 파일 저장
+                            withContext(Dispatchers.IO) {
+                                val channel: ByteReadChannel = part.provider()
+                                file.writeBytes(channel.toByteArray())
+                            }
+                        }
+                        else -> Unit // 다른 파트는 처리하지 않음
+                    }
+
+                    // 파트를 닫아야 메모리 누수를 방지할 수 있음
+                    part.dispose()
+                }
+
+                if (fileName != null) {
+                    // 이미지 URL 생성
+                    val imageUrl = "/notice/images/$fileName" // 클라이언트에서 접근 가능한 URL
+
+                    // 응답 데이터
+                    val response = mapOf("imageUrl" to imageUrl)
+
+                    call.respond(HttpStatusCode.OK, response)
+                } else {
+                    call.respond(HttpStatusCode.BadRequest, "No file uploaded")
+                }
+            } catch (e: IOException) {
+                call.respond(HttpStatusCode.InternalServerError, "Error uploading file: ${e.message}")
+            }
+        }
+
     }
 }
 
