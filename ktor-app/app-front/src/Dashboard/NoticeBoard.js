@@ -28,16 +28,51 @@ function NoticeBoardPage() {
         'link', 'image'
     ];
 
+    const imageHandler = async () => {
+        const input = document.createElement('input');
+        input.setAttribute('type', 'file');
+        input.setAttribute('accept', 'image/*');
+        input.click();
+
+        input.onchange = async () => {
+            const file = input.files[0];
+            const formData = new FormData();
+            formData.append('image', file);
+
+            try {
+                const result = await axios.post('http://localhost:8081/api/notice/upload', formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    }
+                });
+
+                const quill = document.querySelector('.ql-editor');
+                const range = document.getSelection().getRangeAt(0);
+                const imageUrl = result.data.imageUrl;  // 서버에서 반환한 이미지 URL
+
+                // 에디터에 이미지 삽입
+                const editor = document.querySelector('.ql-editor');
+                const img = document.createElement('img');
+                img.src = imageUrl;
+                range.insertNode(img);
+            } catch (error) {
+                console.error('이미지 업로드 실패:', error);
+            }
+        };
+    };
+
     const modules = useMemo(() => {
         return {
-            toolbar: [
-                [{ header: [1, 2, 3, false] }],
-                ['bold', 'italic', 'underline', 'strike'],
-                [{ list: 'ordered' }, { list: 'bullet' }],
-                ['code-block'], // code-block 버튼 추가
-                ['link', 'image'],
-                ['clean']
-            ],
+            toolbar: {
+                container: [
+                    [{ header: [1, 2, 3, false] }],
+                    ['bold', 'italic', 'underline', 'strike'],
+                    [{ list: 'ordered' }, { list: 'bullet' }],
+                    ['code-block'], // code-block 버튼 추가
+                    ['link', 'image'],
+                    ['clean']
+                ]
+            }
         };
     }, []);
 
@@ -171,9 +206,9 @@ function NoticeBoardPage() {
         }
     };
 
-    
+
     const handleUpdate = async () => {
-       
+
     };
 
 
@@ -185,10 +220,10 @@ function NoticeBoardPage() {
             setIsCreating(false);
             setSelectedNotice(null);
         }
-                
+
     };
 
-
+    /* notices 중에서 title을 기준으로 filter*/
     const filteredNotices = useMemo(() => {
         if (!notices || !Array.isArray(notices)) return [];
 
@@ -196,6 +231,10 @@ function NoticeBoardPage() {
             notice && notice.title && notice.title.includes(searchTerm || '')
         );
     }, [notices, searchTerm]);
+
+
+
+
 
     return (
         <div className="container mx-auto px-4 py-8 bg-gray-50 min-h-screen">
@@ -324,7 +363,7 @@ function NoticeBoardPage() {
                         </div>
                     ) : (
                         <div className="text-center text-gray-500 py-16">
-                            {notices && notices.length > 0 
+                            {notices && notices.length > 0
                                 ? "공지사항을 선택해주세요"
                                 : "등록된 공지사항이 없습니다"}
                         </div>
