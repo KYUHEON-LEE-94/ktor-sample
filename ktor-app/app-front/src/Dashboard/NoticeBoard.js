@@ -46,15 +46,15 @@ function NoticeBoardPage() {
                     }
                 });
 
-                const quill = document.querySelector('.ql-editor');
-                const range = document.getSelection().getRangeAt(0);
-                const imageUrl = result.data.imageUrl;  // 서버에서 반환한 이미지 URL
+                // 현재 에디터의 인스턴스를 가져옵니다
+                const quill = document.querySelector('.ql-editor').getEditor();
+                // 현재 커서 위치를 가져옵니다
+                const range = quill.getSelection(true);
 
-                // 에디터에 이미지 삽입
-                const editor = document.querySelector('.ql-editor');
-                const img = document.createElement('img');
-                img.src = imageUrl;
-                range.insertNode(img);
+                // 서버에서 받은 이미지 URL을 에디터에 삽입합니다
+                quill.insertEmbed(range.index, 'image', result.data.imageUrl);
+                // 커서를 이미지 다음으로 이동합니다
+                quill.setSelection(range.index + 1);
             } catch (error) {
                 console.error('이미지 업로드 실패:', error);
             }
@@ -71,7 +71,8 @@ function NoticeBoardPage() {
                     ['code-block'], // code-block 버튼 추가
                     ['link', 'image'],
                     ['clean']
-                ]
+                ],
+                handlers: { image: imageHandler },
             }
         };
     }, []);

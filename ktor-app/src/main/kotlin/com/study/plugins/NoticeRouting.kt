@@ -105,7 +105,7 @@ fun Application.noticeRouting() {
             }
         }
 
-        get("/api/notice/upload") {
+        post("/api/notice/upload") {
             try {
                 val multipart = call.receiveMultipart()
                 println("multipart $multipart ")
